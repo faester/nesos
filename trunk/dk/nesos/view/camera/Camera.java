@@ -143,7 +143,7 @@ public final class Camera {
      */
     public void lookDown(float degrees) {
         float radians = (float) Math.toRadians(degrees);
-        Vector3f axis = Vector3f.cross(direction, UP, null); // the axis to rotate around is perpendular to direction and up
+        Vector3f axis = Vector3f.cross(direction, UP, null); // the axis to rotate around, is perpendular to direction and up
         rotateAroundAxis(-radians, axis);
     } // method
 
