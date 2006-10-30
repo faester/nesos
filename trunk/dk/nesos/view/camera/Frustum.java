@@ -89,8 +89,7 @@ public final class Frustum {
     } // method
     
     /**
-     * TODO NDHB: Description
-     *
+     * Normalizing is an optimization for determining distance to the plane.
      */
     public void normalise() {
         float t = (float)Math.sqrt(a * a + b * b + c * c);

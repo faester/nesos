@@ -14,16 +14,13 @@ import dk.nesos.view.camera.*;
 import dk.nesos.view.text.*;
 
 /**
- * <P>For testing the view.text.* classes
- * 
- * <P>Take a look at the input method - there are many filtering and sampling options to try out. 
+ * <P>For testing <....>
  * 
  * @author ndhb, mhf
  *
  */
-public class TestText {
+public class TestTemplate {
     
-    private static final String testString = "The quick onyx goblin jumps over the lazy dwarf";
     private static final float FPS_UPDATE_TIME = 1000;
     private static boolean FULLSCREEN = false;
     
@@ -44,7 +41,7 @@ public class TestText {
     private boolean glPolygonMode = Configuration.getFill();
     private boolean glLighting = Configuration.hasLighting();
     private boolean done = false;
-    private String windowTitle = "TestText";
+    private String windowTitle = "Test";
     private DisplayMode displayMode;
     
     private int framesRendered;
@@ -53,6 +50,7 @@ public class TestText {
     private float minFPS = Short.MAX_VALUE;
     private long currentTime;
     private long timeToFPS;
+    private Text text;
     
     private Camera camera;
     
@@ -63,17 +61,8 @@ public class TestText {
     private FloatBuffer lightPos = BufferUtils.createFloatBuffer(4).put(0, lightDistance).put(1, 50).put(2, lightDistance).put(3, 1);
     Sphere lightSphere = new Sphere(); // create a "sun"
     
-    private Text text;
-    private Sphere sphere = new Sphere();
-    private int sphereList;
-    private int mipMapMax;
-    private int mipMapMaxLOD;
-    private int mipMapMinLOD;
-    private float textRotationAngle;
-    private float textRotationAngleDelta = 0.5f;
-    
     public static void main(String args[]) {
-        TestText q = new TestText();
+        TestTemplate q = new TestTemplate();
         q.run();
     } // main
 
@@ -176,9 +165,6 @@ public class TestText {
         if (!key_f5 && Keyboard.isKeyDown(Keyboard.KEY_F5)) {
             key_f5 = true;
             // available
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
-            GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_DECAL);
-            Debug.println("GL_TEXTURE_ENV_MODE = GL_DECAL");
         } else if (key_f5 && !Keyboard.isKeyDown(Keyboard.KEY_F5)) {
             key_f5 = false;
         } // if else        
@@ -187,9 +173,6 @@ public class TestText {
         if (!key_f6 && Keyboard.isKeyDown(Keyboard.KEY_F6)) {
             key_f6 = true;
             // available
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
-            GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-            Debug.println("GL_TEXTURE_ENV_MODE = GL_REPLACE");
         } else if (key_f6 && !Keyboard.isKeyDown(Keyboard.KEY_F6)) {
             key_f6 = false;
         } // if else
@@ -198,9 +181,6 @@ public class TestText {
         if (!key_f7 && Keyboard.isKeyDown(Keyboard.KEY_F7)) {
             key_f7 = true;
             // available
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
-            GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-            Debug.println("GL_TEXTURE_ENV_MODE = GL_MODULATE");
         } else if (key_f7 && !Keyboard.isKeyDown(Keyboard.KEY_F7)) {
             key_f7 = false;
         } // if else
@@ -209,9 +189,6 @@ public class TestText {
         if (!key_f8 && Keyboard.isKeyDown(Keyboard.KEY_F8)) {
             key_f8 = true;
             // available
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
-            GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-            Debug.println("GL_TEXTURE_ENV_MODE = GL_BLEND");
         } else if (key_f8 && !Keyboard.isKeyDown(Keyboard.KEY_F8)) {
             key_f8 = false;
         } // if else
@@ -220,9 +197,6 @@ public class TestText {
         if (!key_f9 && Keyboard.isKeyDown(Keyboard.KEY_F9)) {
             key_f9 = true;
             // available
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
-            GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_ADD);
-            Debug.println("GL_TEXTURE_ENV_MODE = GL_ADD");
         } else if (key_f9 && !Keyboard.isKeyDown(Keyboard.KEY_F9)) {
             key_f9 = false;
         } // if else
@@ -231,9 +205,6 @@ public class TestText {
         if (!key_f10 && Keyboard.isKeyDown(Keyboard.KEY_F10)) {
             key_f10 = true;
             // available
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
-            GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL13.GL_COMBINE);
-            Debug.println("GL_TEXTURE_ENV_MODE = GL_COMBINE (1.3)");
         } else if (key_f10 && !Keyboard.isKeyDown(Keyboard.KEY_F10)) {
             key_f10 = false;
         } // if else
@@ -242,8 +213,6 @@ public class TestText {
         if (!key_f11 && Keyboard.isKeyDown(Keyboard.KEY_F11)) {
             key_f11 = true;
             // available
-            text.setDepthTesting(! text.hasDepthTesting());
-            Debug.println("glText.depthTesting: " + text.hasDepthTesting());
         } else if (key_f11 && !Keyboard.isKeyDown(Keyboard.KEY_F11)) {
             key_f11 = false;
         } // if else
@@ -251,10 +220,7 @@ public class TestText {
         // KEY_F12
         if (!key_f12 && Keyboard.isKeyDown(Keyboard.KEY_F12)) {
             key_f12 = true;
-            text.setLighting(! text.hasLighting());
-            Debug.println("glText.lighting: " + text.hasLighting());
-//            camera = new Camera();
-//            camera.refresh();
+            // available
         } else if (key_f12 && !Keyboard.isKeyDown(Keyboard.KEY_F12)) {
             key_f12 = false;
         } // if else
@@ -302,83 +268,51 @@ public class TestText {
         // KEY_1
         if (Keyboard.isKeyDown(Keyboard.KEY_1)) {
             // available
-            text.setAnisotropicFiltering(1f);
         } // if
 
         // KEY_2
         if (Keyboard.isKeyDown(Keyboard.KEY_2)) {
             // available
-            text.setAnisotropicFiltering(2f);
         } // if
 
         // KEY_4
         if (Keyboard.isKeyDown(Keyboard.KEY_4)) {
             // available
-            text.setAnisotropicFiltering(4f);
         } // if
 
         // KEY_8
         if (Keyboard.isKeyDown(Keyboard.KEY_8)) {
             // available
-            text.setAnisotropicFiltering(8f);
         } // if
         
         // KEY_PERIOD
         if (Keyboard.isKeyDown(Keyboard.KEY_PERIOD)) {
             // available
-            int name = text.getTextureName();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, (mipMapMax == 0 ? 0 : --mipMapMax));
-            Debug.println("MipMap Texture Max Level Decreasing: " + mipMapMax);
         } // if
         
         // KEY_COMMA
         if (Keyboard.isKeyDown(Keyboard.KEY_COMMA)) {
             // available
-            int name = text.getTextureName();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, ++mipMapMax);
-            Debug.println("MipMap Texture Max Level Increase: " + mipMapMax);
         } // if
 
         // KEY_N
         if (Keyboard.isKeyDown(Keyboard.KEY_N)) {
             // available
-            int name = text.getTextureName();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LOD, (mipMapMaxLOD == 0 ? 0 : --mipMapMaxLOD));
-            Debug.println("MipMap Texture MAX LOD Decreasing: " + mipMapMaxLOD);
-            try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
         } // if
         
         // KEY_M
         if (Keyboard.isKeyDown(Keyboard.KEY_M)) {
             // available
-            int name = text.getTextureName();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LOD, ++mipMapMaxLOD);
-            Debug.println("MipMap Texture MAX LOD Increase: " + mipMapMaxLOD);
-            try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
         } // if
         
         // KEY_V
         if (Keyboard.isKeyDown(Keyboard.KEY_V)) {
             // available
-            int name = text.getTextureName();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MIN_LOD, (mipMapMinLOD == 0 ? 0 : --mipMapMinLOD));
-            Debug.println("MipMap Texture MIN LOD Decreasing: " + mipMapMinLOD);
-            try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
         } // if
         
         // KEY_B
         if (Keyboard.isKeyDown(Keyboard.KEY_B)) {
             // available
-            int name = text.getTextureName();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MIN_LOD, ++mipMapMinLOD);
-            Debug.println("MipMap Texture MIN LOD Increase: " + mipMapMinLOD);
-            try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
         } // if
         
         // KEY_NUMPAD1
@@ -473,45 +407,6 @@ public class TestText {
         // rendering code goes here
         camera.drawAxis();
         
-        // draw spheres
-        if (false) {
-            if (sphereList == 0) {
-                sphereList = GL11.glGenLists(1);
-                GL11.glNewList(sphereList, GL11.GL_COMPILE);
-                int size = 10;
-                int distance = 80;
-                for (int i = 0; i < 30; i++) {
-                    float s = (float)Math.random();
-                    float t = (float)Math.random();
-                    float u = (float)Math.random();
-                    GL11.glPushMatrix();
-                    GL11.glTranslatef(s * distance, t * distance, u * distance);
-                    GL11.glColor3f(s, t, u);
-                    sphere.draw(size, 16, 16);
-                    GL11.glPopMatrix();
-                } // for
-                GL11.glEndList();
-            } else {
-                GL11.glCallList(sphereList);
-            } // if
-                        
-        } // if draw dummy
-        
-        if (true) {
-            GL11.glColor3f(1, 1, 1);
-            text.drawTexture(100, 100);
-        } // if
-        
-        if (true) {
-            GL11.glColor3f(0.35f, 0.8f, 0.35f);
-            textRotationAngle += textRotationAngleDelta * 0.1f;
-            GL11.glPushMatrix(); // store modelview matrix
-            // GL11.glTranslatef((float)Math.sin(textRotationAngle) * 4f, 0, (float)Math.cos(textRotationAngle) * 4f);
-            GL11.glRotatef(textRotationAngle, 0, 1, 0);
-              // GL11.glScalef(1f, 1f, 1f);
-            text.drawString3D(testString);
-            GL11.glPopMatrix(); // restore matrix
-        } // if
         
         currentTime = System.currentTimeMillis();
         if (currentTime > timeToFPS) {
@@ -604,7 +499,6 @@ public class TestText {
         // text = new Text(new BitmapFileFont("asset/font/Courier512x512x32xNOAA.bff"));
         // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
         text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
-        // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium4096x4096x32xNOAA.bff"));
         
         // GL11.glClearColor(0.15f, 0.15f, 0.15f, 0);
     } // method
