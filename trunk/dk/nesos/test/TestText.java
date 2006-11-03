@@ -474,7 +474,7 @@ public class TestText {
     camera.drawAxis();
 
     // draw spheres
-    if (true) {
+    if (false) {
       if (sphereList == 0) {
         sphereList = GL11.glGenLists(1);
         GL11.glNewList(sphereList, GL11.GL_COMPILE);
@@ -505,18 +505,15 @@ public class TestText {
       GL11.glColor3f(0.35f, 0.35f, 0.7f);
       // GL11.glColor3f(0f, 0f, 0f);
       // GL11.glColor3f(1f, 1f, 1f);
-      textRotationAngle += textRotationAngleDelta * 0.1f;
+      textRotationAngle += textRotationAngleDelta * 0.05f;
       GL11.glPushMatrix(); // store modelview matrix
-      GL11.glTranslatef((float)Math.sin(textRotationAngle) * 4f, 0, (float)Math.cos(textRotationAngle) * 4f);
-      // GL11.glRotatef(textRotationAngle, 0, 2, 0);
+      // GL11.glRotatef(textRotationAngle, 0, 1, 0);
       // GL11.glScalef(1f, 2f, 1f);
-      text.drawString3D(testString);
+      // text.drawString3D(testString, (float)Math.sin(textRotationAngle) * 4f, 0, (float)Math.cos(textRotationAngle) * 4f);
+      text.drawString3D(testString, 0, 0, 0);
       GL11.glPopMatrix(); // restore matrix
-
-      GL11.glPushMatrix(); // store modelview matrix
-      GL11.glTranslatef(0, -32.1f, 0.2f);
-      text.drawString3D("Hello World!");
-      GL11.glPopMatrix(); // restore matrix
+      GL11.glColor3f(1f, 1f, 1f);
+      text.drawString3D("Hello World!", 0, -32f, 5f);
     } // if drawString3D
 
     currentTime = System.currentTimeMillis();

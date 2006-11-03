@@ -11,11 +11,8 @@ import java.nio.*;
  * Text is an object that writes text with the font specified in the constructor.
  * 
  * <P>Skal kunne instantieres med forskellig skrifttype
- * 
- * <P>Skal kunne skrive 2D og 3D, drawString2D(String, x, y), drawString3D(String, x, y, z)
- * 
+ *  
  * @author NDHB
- *
  */
 public final class Text {
 
@@ -51,31 +48,48 @@ public final class Text {
   } // method
 
   /**
-   * <P>Draws the specified string at the given coordinates in orthographic projection (2D). 
-   *
-   * <P><B>Note: The coordinates are given in OpenGL fashion, ie. (0,0) = lower-left corner of the screen</B>
+   * Draws the specified string at the given coordinates in orthographic projection (2D). 
+   * <P>
+   * Transformations of the coordinate system are not preserved through this method. That is, the
+   * identity matrix is loaded, before drawing the text.
+   * <P>
+   * <B>Note: The coordinates are given in OpenGL fashion, ie. (0,0) = lower-left corner of the screen</B>
    * 
    * @param string
    * @param x coordinate
    * @param y coordinate
    */
   public void drawString2D(String string, int x, int y) {
-    beginOrthographicProjection(Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
+    beginOrthographicProjection(Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight()); // store current projection matrix and transform to orthographic
     GL11.glMatrixMode(GL11.GL_MODELVIEW); // switch to modelview stack
-    GL11.glPushMatrix(); // store modelview matrix
-    GL11.glLoadIdentity();
-    GL11.glTranslatef(x, y, 0);
-    drawString3D(string);
+    GL11.glPushMatrix(); // store current matrix
+    GL11.glLoadIdentity(); // need identity matrix for proper translation in orthographic perspective
+    GL11.glTranslatef(x, y, 0); // translate in 2 dimensions
+    drawString(string); // perform the actual rendering
     GL11.glPopMatrix(); // restore modelview matrix
-    endOrthographicProjection();
+    endOrthographicProjection(); // restore previous projection matrix
   } // method
 
   /**
-   * <P>Draws the specified string in the current coordinate system (3D).
+   * Draws the specified string in the 3D coordinate system.
+   * <P>
+   * Transformations of the coordinatesystem are preserved through this method. This makes it possible
+   * to scale, rotate and translate the text.
    *
    * @param string
+   * @param x
+   * @param y
+   * @param z
    */
-  public void drawString3D(String string) {
+  public void drawString3D(String string, float x, float y, float z) {
+    GL11.glMatrixMode(GL11.GL_MODELVIEW); // switch to modelview stack
+    GL11.glPushMatrix(); // store current matrix
+    GL11.glTranslatef(x, y, 0); // translate in 3 dimensions
+    drawString(string); // perform the actual rendering
+    GL11.glPopMatrix(); // restore modelview matrix
+  } // method
+
+  private void drawString(String string) {
     int stringLength = string.length();
     if (stringLength > MAX_STRING_LENGTH) {
       throw new UnsupportedOperationException("String too long (" + stringLength + " characters in string, but only " + MAX_STRING_LENGTH + " available). Please shorten string OR increase GLText.MAX_STRING_LENGTH)!");
@@ -84,11 +98,11 @@ public final class Text {
     for (int c = 0, characterIndex = listBaseName - font.baseCharacter; c < stringLength; c++) {
       tmpIntBuffer.put(c, characterIndex + string.charAt(c)); // create buffer with names to execute
     } // for all characters
-    prepareText();
+    beginTextState();
     GL11.glCallLists(tmpIntBuffer); // execute all these display lists
-    doneText();
+    endTextState();
   } // method
-
+  
   /**
    * <P>Draws the font as one textured quad on the x-axis of the current coordinate system. This makes examining the font easier.
    *
@@ -96,7 +110,7 @@ public final class Text {
    * @param height of the quad being drawn
    */
   public void drawTexture(int width, int height) {
-    prepareText();
+    beginTextState();
     GL11.glBegin(GL11.GL_QUADS);
     GL11.glNormal3f(0, 0, 1);
     GL11.glTexCoord2f(0, 1); GL11.glVertex3f(0, 0, 0);
@@ -104,7 +118,7 @@ public final class Text {
     GL11.glTexCoord2f(1, 0); GL11.glVertex3f(width, height, 0);
     GL11.glTexCoord2f(0, 0); GL11.glVertex3f(0, height, 0);
     GL11.glEnd();
-    doneText();
+    endTextState();
   } // method
 
   /**
@@ -253,9 +267,8 @@ public final class Text {
 
   /**
    * <P>Should be called when done rendering all characters in the text. The method restores previously saved OpenGL states.
-   *
    */
-  private void doneText() {
+  private void endTextState() {
     GL11.glPopAttrib(); // restore attributes
   } // method
 
@@ -280,7 +293,7 @@ public final class Text {
    * <P>Should be called prior to rendering the characters in the text. The method saves current OpenGL states and enables those required for rendering. 
    *
    */
-  private void prepareText() {
+  private void beginTextState() {
     GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS); // store attributes (FIXME: overkill to store all)
     if (depthTesting) { // might require different glBlendFunc...
       GL11.glEnable(GL11.GL_DEPTH_TEST); // enable depth test (text can be occluded)
@@ -300,11 +313,6 @@ public final class Text {
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureName);
   } // method
 
-  private void endOrthographicProjection() {
-    GL11.glMatrixMode(GL11.GL_PROJECTION); // switch to projection stack
-    GL11.glPopMatrix(); // restore perspective matrix
-  } // method
-
   /**
    * <P>Prepares an orthographic projection matrix. Saves the current matrices on the matrixstack.
    * 
@@ -317,7 +325,12 @@ public final class Text {
     GL11.glMatrixMode(GL11.GL_PROJECTION); // switch to projection stack
     GL11.glPushMatrix(); // store projection matrix
     GL11.glLoadIdentity(); // reset matrix
-    GLU.gluOrtho2D(0, width, 0, height); // set a 2D orthographic projection        
+    GLU.gluOrtho2D(0, width, 0, height); // set a 2D orthographic projection
+  } // method
+  
+  private void endOrthographicProjection() {
+    GL11.glMatrixMode(GL11.GL_PROJECTION); // switch to projection stack
+    GL11.glPopMatrix(); // restore perspective matrix
   } // method
 
 } // class
