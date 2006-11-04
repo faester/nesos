@@ -9,9 +9,17 @@ import java.nio.*;
 
 /**
  * Text is an object that writes text with the font specified in the constructor.
+ * <P>
+ * Note: http://www.gamedev.net/community/forums/topic.asp?topic_id=421835
+ * <P>
+ * Issues:
+ * <OL>
+ * <LI>Move some methods to TextureManager</LI>
+ * <LI>Lighting interesting?</LI>
+ * <LI>Blending interesting?</LI>
+ * <LI>AlphaTest interesting?</LI>
+ * </OL>
  * 
- * <P>Skal kunne instantieres med forskellig skrifttype
- *  
  * @author NDHB
  */
 public final class Text {
@@ -84,7 +92,7 @@ public final class Text {
   public void drawString3D(String string, float x, float y, float z) {
     GL11.glMatrixMode(GL11.GL_MODELVIEW); // switch to modelview stack
     GL11.glPushMatrix(); // store current matrix
-    GL11.glTranslatef(x, y, 0); // translate in 3 dimensions
+    GL11.glTranslatef(x, y, z); // translate in 3 dimensions
     drawString(string); // perform the actual rendering
     GL11.glPopMatrix(); // restore modelview matrix
   } // method
@@ -93,7 +101,7 @@ public final class Text {
     int stringLength = string.length();
     if (stringLength > MAX_STRING_LENGTH) {
       throw new UnsupportedOperationException("String too long (" + stringLength + " characters in string, but only " + MAX_STRING_LENGTH + " available). Please shorten string OR increase GLText.MAX_STRING_LENGTH)!");
-    } // if
+    } // if string too long
     tmpIntBuffer.limit(stringLength);
     for (int c = 0, characterIndex = listBaseName - font.baseCharacter; c < stringLength; c++) {
       tmpIntBuffer.put(c, characterIndex + string.charAt(c)); // create buffer with names to execute
@@ -290,12 +298,14 @@ public final class Text {
   } // method
 
   /**
-   * <P>Should be called prior to rendering the characters in the text. The method saves current OpenGL states and enables those required for rendering. 
-   *
+   * <P>
+   * Should be called prior to rendering the characters in the text.
+   * <P>
+   * The method saves current OpenGL states and enables those required for rendering. 
    */
   private void beginTextState() {
     GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS); // store attributes (FIXME: overkill to store all)
-    if (depthTesting) { // might require different glBlendFunc...
+    if (depthTesting) {
       GL11.glEnable(GL11.GL_DEPTH_TEST); // enable depth test (text can be occluded)
       GL11.glDepthMask(true); // enable depth masking
     } else {
@@ -309,6 +319,8 @@ public final class Text {
     } // if        
     GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // blending functions
     GL11.glEnable(GL11.GL_BLEND); // enable blending
+    GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f); // those pixels with alpha greater than 0.1
+    GL11.glEnable(GL11.GL_ALPHA_TEST); // ... only write these
     GL11.glEnable(GL11.GL_TEXTURE_2D); // enable texturing
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureName);
   } // method
