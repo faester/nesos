@@ -71,6 +71,7 @@ public class TestText {
   private int mipMapMinLOD;
   private float textRotationAngle;
   private float textRotationAngleDelta = 0.5f;
+  private float alphaReference = 0;
 
   public static void main(String args[]) {
     TestText q = new TestText();
@@ -381,6 +382,20 @@ public class TestText {
       try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
     } // if
 
+    // KEY_X
+    if (Keyboard.isKeyDown(Keyboard.KEY_X)) {
+      alphaReference += 0.05f;
+      Debug.println("AlphaFunc with " + alphaReference);
+      try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
+    } // if
+
+    // KEY_Z
+    if (Keyboard.isKeyDown(Keyboard.KEY_Z)) {
+      alphaReference -= 0.05f;
+      Debug.println("AlphaFunc with " + alphaReference);
+      try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
+    } // if
+    
     // KEY_NUMPAD1
     if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
       camera.moveBackwardsLeft(1);
@@ -457,6 +472,8 @@ public class TestText {
   private void render() {
     camera.refresh();
 
+    GL11.glAlphaFunc(GL11.GL_GREATER, alphaReference);
+    
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); // clear buffers
 
     if (! lightPaused) {
@@ -474,7 +491,7 @@ public class TestText {
     camera.drawAxis();
 
     // draw spheres
-    if (false) {
+    if (true) {
       if (sphereList == 0) {
         sphereList = GL11.glGenLists(1);
         GL11.glNewList(sphereList, GL11.GL_COMPILE);
@@ -505,15 +522,16 @@ public class TestText {
       GL11.glColor3f(0.35f, 0.35f, 0.7f);
       // GL11.glColor3f(0f, 0f, 0f);
       // GL11.glColor3f(1f, 1f, 1f);
-      textRotationAngle += textRotationAngleDelta * 0.05f;
+      textRotationAngle += textRotationAngleDelta * 0.025f;
       GL11.glPushMatrix(); // store modelview matrix
       // GL11.glRotatef(textRotationAngle, 0, 1, 0);
       // GL11.glScalef(1f, 2f, 1f);
-      // text.drawString3D(testString, (float)Math.sin(textRotationAngle) * 4f, 0, (float)Math.cos(textRotationAngle) * 4f);
-      text.drawString3D(testString, 0, 0, 0);
+      // text.drawString3D(testString, (float)Math.sin(textRotationAngle) * 20f, 0, (float)Math.cos(textRotationAngle) * 20f);
+      text.drawString3D(testString, 0, 0, (float)Math.cos(textRotationAngle) * 20f - 30);
+      // text.drawString3D(testString, 0, 0, 5);
       GL11.glPopMatrix(); // restore matrix
-      GL11.glColor3f(1f, 1f, 1f);
-      text.drawString3D("Hello World!", 0, -32f, 5f);
+      // GL11.glColor3f(1f, 1f, 1f);
+      // text.drawString3D("Hello World!", 0, -32f, 5f);
     } // if drawString3D
 
     currentTime = System.currentTimeMillis();
@@ -594,22 +612,27 @@ public class TestText {
     GL11.glEnable(GL11.GL_COLOR_MATERIAL);
     GL11.glMateriali(GL11.GL_FRONT, GL11.GL_SHININESS, 64);
 
-    GL11.glEnable(GL11.GL_BLEND); // enable blending
-    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+    // GL11.glEnable(GL11.GL_BLEND); // enable blending
+    // GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     // GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_DST_COLOR);
 
-    camera = new Camera(new Vector3f(33, 55, 140), new Vector3f(0, 0, -1)); // front
+    GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
+    GL11.glEnable(GL11.GL_ALPHA_TEST);
+    
+    // camera = new Camera(new Vector3f(33, 55, 140), new Vector3f(0, 0, -1)); // front
+    camera = new Camera(new Vector3f(106.42713f, 27.0f, 38.21351f), new Vector3f(-0.51368123f, 0.0f, -0.84130013f));
     // camera = new Camera(new Vector3f(-200, 50f, 100f), new Vector3f(0.55f, 0.0f, 0.02f)); // anisotrophic
 
     // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xNOAA.bff"));
-    text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xAA.bff"));
+    // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xAA.bff"));
     // text = new Text(new BitmapFileFont("asset/font/Courier512x512x32xNOAA.bff"));
-    // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
+    text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
     // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
     // text = new Text(new BitmapFileFont("asset/font/Verdana1024x1024xAAx32.bff"));
     // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium4096x4096x32xNOAA.bff"));
 
-    // GL11.glClearColor(0.15f, 0.15f, 0.15f, 0);
+    GL11.glClearColor(0.85f, 0.65f, 0.25f, 0);
+    // GL11.glClearColor(1, 1, 1, 0.5f);
   } // method
 
   private void cleanup() {
