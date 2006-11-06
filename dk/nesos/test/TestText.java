@@ -491,7 +491,7 @@ public class TestText {
     camera.drawAxis();
 
     // draw spheres
-    if (true) {
+    if (false) {
       if (sphereList == 0) {
         sphereList = GL11.glGenLists(1);
         GL11.glNewList(sphereList, GL11.GL_COMPILE);
@@ -513,7 +513,7 @@ public class TestText {
       } // if                        
     } // if sphere
 
-    if (true) {
+    if (false) {
       GL11.glColor3f(1, 1, 1);
       text.drawTexture(100, 100);
     } // if textures
@@ -626,13 +626,13 @@ public class TestText {
     // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xNOAA.bff"));
     // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xAA.bff"));
     // text = new Text(new BitmapFileFont("asset/font/Courier512x512x32xNOAA.bff"));
-    text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
-    // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
+    // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
+    text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
     // text = new Text(new BitmapFileFont("asset/font/Verdana1024x1024xAAx32.bff"));
     // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium4096x4096x32xNOAA.bff"));
 
-    GL11.glClearColor(0.85f, 0.65f, 0.25f, 0);
-    // GL11.glClearColor(1, 1, 1, 0.5f);
+    // GL11.glClearColor(0.85f, 0.65f, 0.25f, 0);
+    GL11.glClearColor(0, 0, 0, 0);
   } // method
 
   private void cleanup() {
