@@ -513,7 +513,7 @@ public class TestText {
       } // if                        
     } // if sphere
 
-    if (false) {
+    if (true) {
       GL11.glColor3f(1, 1, 1);
       text.drawTexture(100, 100);
     } // if textures
@@ -523,13 +523,13 @@ public class TestText {
       // GL11.glColor3f(0f, 0f, 0f);
       // GL11.glColor3f(1f, 1f, 1f);
       textRotationAngle += textRotationAngleDelta * 0.025f;
-      GL11.glPushMatrix(); // store modelview matrix
+      // GL11.glPushMatrix(); // store modelview matrix
       // GL11.glRotatef(textRotationAngle, 0, 1, 0);
       // GL11.glScalef(1f, 2f, 1f);
       // text.drawString3D(testString, (float)Math.sin(textRotationAngle) * 20f, 0, (float)Math.cos(textRotationAngle) * 20f);
       text.drawString3D(testString, 0, 0, (float)Math.cos(textRotationAngle) * 20f - 30);
       // text.drawString3D(testString, 0, 0, 5);
-      GL11.glPopMatrix(); // restore matrix
+      // GL11.glPopMatrix(); // restore matrix
       // GL11.glColor3f(1f, 1f, 1f);
       // text.drawString3D("Hello World!", 0, -32f, 5f);
     } // if drawString3D
