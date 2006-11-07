@@ -18,6 +18,7 @@ import java.nio.*;
  * <LI>Lighting interesting?</LI>
  * <LI>Blending interesting?</LI>
  * <LI>AlphaTest interesting?</LI>
+ * <LI>Scaling down, seems to require anisotropic filtering (or max mipmap level 0) - else blur!<LI>
  * </OL>
  * 
  * @author NDHB
@@ -27,6 +28,7 @@ public final class Text {
   private static final int MAX_STRING_LENGTH = 256; // maximum number of characters in a string
   private static float MAX_TEXTURE_MAX_ANISOTROPY_EXT;
 
+  private boolean monoSpaced; // whether the distance between characters is constant
   private boolean depthTesting; // whether to perform depth testing
   private boolean lighting; // whether to enable light when rendering
   private int listBaseName; // name of first valid display list
@@ -37,12 +39,20 @@ public final class Text {
   private BitmapFont font;
 
   public Text(BitmapFont font) {
+    this(font, false);
+  } // constructor
+
+  public Text(BitmapFont font, boolean monoSpaced) {
     this.font = font;
-    // System.out.println(font); // DEBUG
+    this.monoSpaced = monoSpaced;
     textureName = createFontTexture();
     listBaseName = createDisplayLists();
   } // constructor
-
+  
+  public BitmapFont getFont() {
+    return font;
+  } // method
+  
   /**
    * <P>Releases previously allocated resources (ie. display lists and texture object).
    */
@@ -68,16 +78,38 @@ public final class Text {
    * @param y coordinate
    */
   public void drawString2D(String string, int x, int y) {
+    String[] strings = { string };
+    drawStrings2D(strings, x, y, 0, 0); // performance penalty for this hack?
+  } // method
+
+  /**
+   * TODO: description
+   * 
+   * @param strings
+   * @param x
+   * @param y
+   * @param xDelta
+   * @param yDelta
+   */
+  public void drawStrings2D(String[] strings, float x, float y, float  xDelta, float yDelta) {
+    beginTextState();
     beginOrthographicProjection(Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight()); // store current projection matrix and transform to orthographic
     GL11.glMatrixMode(GL11.GL_MODELVIEW); // switch to modelview stack
     GL11.glPushMatrix(); // store current matrix
     GL11.glLoadIdentity(); // need identity matrix for proper translation in orthographic perspective
-    GL11.glTranslatef(x, y, 0); // translate in 2 dimensions
-    drawString(string); // perform the actual rendering
+    // GL11.glScalef(0.5f, 0.5f, 1f); // scaling
+    GL11.glTranslatef(x, y, 0); // translate to origin    
+    for (int s = 0; s < strings.length; s++) {
+      GL11.glPushMatrix(); // store current matrix
+      drawString(strings[s]); // perform the actual rendering
+      GL11.glPopMatrix(); // restore modelview matrix
+      GL11.glTranslatef(xDelta, -yDelta, 0); // translate offsets for next line
+    } // for
     GL11.glPopMatrix(); // restore modelview matrix
     endOrthographicProjection(); // restore previous projection matrix
+    endTextState();
   } // method
-
+  
   /**
    * Draws the specified string in the 3D coordinate system.
    * <P>
@@ -90,11 +122,13 @@ public final class Text {
    * @param z
    */
   public void drawString3D(String string, float x, float y, float z) {
+    beginTextState();
     GL11.glMatrixMode(GL11.GL_MODELVIEW); // switch to modelview stack
     GL11.glPushMatrix(); // store current matrix
     GL11.glTranslatef(x, y, z); // translate in 3 dimensions
     drawString(string); // perform the actual rendering
     GL11.glPopMatrix(); // restore modelview matrix
+    endTextState();
   } // method
 
   private void drawString(String string) {
@@ -106,9 +140,7 @@ public final class Text {
     for (int c = 0, characterIndex = listBaseName - font.baseCharacter; c < stringLength; c++) {
       tmpIntBuffer.put(c, characterIndex + string.charAt(c)); // create buffer with names to execute
     } // for all characters
-    beginTextState();
     GL11.glCallLists(tmpIntBuffer); // execute all these display lists
-    endTextState();
   } // method
   
   /**
@@ -138,13 +170,6 @@ public final class Text {
     return textureName;
   } // method  
 
-  // FIXME: move to texturemanager?
-  public float getTexturePriority() {
-    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureName);
-    GL11.glGetTexParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_PRIORITY, tmpFloatBuffer);
-    return tmpFloatBuffer.get(0);
-  } // method
-
   /**
    * <P>Whether or not depth test is currently enabled.
    * 
@@ -163,29 +188,6 @@ public final class Text {
     return lighting;
   } // method
 
-  // FIXME: move to texturemanager?
-  public boolean isTextureCompressed() {
-    GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, 0, ARBTextureCompression.GL_TEXTURE_COMPRESSED_ARB, tmpFloatBuffer);
-    boolean compressed = tmpFloatBuffer.get(0) != 0.0f;
-    System.err.println("Compressed = " + compressed);
-    if (compressed) {
-      GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, 0, ARBTextureCompression.GL_TEXTURE_IMAGE_SIZE_ARB, tmpFloatBuffer);
-      System.err.println("Compressed Size: " + tmpFloatBuffer.get(0)); // DEBUG
-    } else {
-      GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_INTERNAL_FORMAT, tmpFloatBuffer); // DEBUG
-      System.err.println("Internal Format: " + (int) tmpFloatBuffer.get(0));
-    } // if
-    return compressed;
-  } // method
-
-  // FIXME: move to texturemanager?
-  public boolean isTextureResident() {
-    GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureName);
-    GL11.glGetTexParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_RESIDENT, tmpIntBuffer);
-    return (tmpIntBuffer.get(0) == 0 ? false : true);
-  } // method
-
-  // FIXME: move to texturemanager?
   /**
    * <P>Enables or disables anisotropic filtering on the font texture.
    * 
@@ -248,8 +250,11 @@ public final class Text {
       GL11.glTexCoord2f(textureCoordinates.z, textureCoordinates.y); GL11.glVertex2f(font.cellWidth, font.cellHeight);
       GL11.glTexCoord2f(textureCoordinates.x, textureCoordinates.y); GL11.glVertex2f(0, font.cellHeight);
       GL11.glEnd();
-      GL11.glTranslatef(font.characterWidths[index], 0, 0); // advance to the right (characters left to right)
-      // GL11.glTranslatef(font.cellWidth, 0, 0); // advance to the right (characters left to right)
+      if (monoSpaced) {
+        GL11.glTranslatef(font.cellWidth, 0, 0); // advance to the right (characters left to right)
+      } else {
+        GL11.glTranslatef(font.characterWidths[index], 0, 0); // advance to the right (characters left to right)
+      } // if monospaced
       GL11.glEndList();
     } // for all lists
     return baseList;
@@ -326,9 +331,9 @@ public final class Text {
   } // method
 
   /**
-   * <P>Prepares an orthographic projection matrix. Saves the current matrices on the matrixstack.
-   * 
-   * <P><B>Remember to call <code>endOrtographicProjection</code> when done in orthographic mode</B>
+   * Prepares an orthographic projection matrix. Saves the current projection matrix on the stack.
+   * <P>
+   * <B>Remember to call <code>endOrtographicProjection</code> when done in orthographic mode</B>
    *
    * @param width of the projection screen
    * @param height of the projection screen
@@ -340,6 +345,9 @@ public final class Text {
     GLU.gluOrtho2D(0, width, 0, height); // set a 2D orthographic projection
   } // method
   
+  /**
+   * Restores the previous projection from the stack.
+   */
   private void endOrthographicProjection() {
     GL11.glMatrixMode(GL11.GL_PROJECTION); // switch to projection stack
     GL11.glPopMatrix(); // restore perspective matrix

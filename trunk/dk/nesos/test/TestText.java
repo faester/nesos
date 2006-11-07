@@ -73,6 +73,8 @@ public class TestText {
   private float textRotationAngleDelta = 0.5f;
   private float alphaReference = 0;
 
+  private Console console;
+  
   public static void main(String args[]) {
     TestText q = new TestText();
     q.run();
@@ -395,6 +397,15 @@ public class TestText {
       Debug.println("AlphaFunc with " + alphaReference);
       try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
     } // if
+
+    // KEY_P
+    if (Keyboard.isKeyDown(Keyboard.KEY_P)) {
+      long start = System.nanoTime();
+      console.println("System.nanoTime(): " + start);
+      try { Thread.sleep(50); } catch (InterruptedException e) { /* doh */ }
+      long end = System.nanoTime();
+      System.out.println("drawString: " + (float)((end - start) / 1000000f) + " ms");
+    } // if
     
     // KEY_NUMPAD1
     if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD1)) {
@@ -527,13 +538,18 @@ public class TestText {
       // GL11.glRotatef(textRotationAngle, 0, 1, 0);
       // GL11.glScalef(1f, 2f, 1f);
       // text.drawString3D(testString, (float)Math.sin(textRotationAngle) * 20f, 0, (float)Math.cos(textRotationAngle) * 20f);
-      text.drawString3D(testString, 0, 0, (float)Math.cos(textRotationAngle) * 20f - 30);
+      text.drawString3D(testString, 0, 0, (float)Math.cos(textRotationAngle) * 20f);
       // text.drawString3D(testString, 0, 0, 5);
       // GL11.glPopMatrix(); // restore matrix
       // GL11.glColor3f(1f, 1f, 1f);
       // text.drawString3D("Hello World!", 0, -32f, 5f);
     } // if drawString3D
 
+    if (true) {
+      GL11.glColor3f(1f, 1f, 1f);
+      console.renderGL();
+    } // if console
+    
     currentTime = System.currentTimeMillis();
     if (currentTime > timeToFPS) {
       currentFPS = framesRendered / FPS_UPDATE_TIME * 1000;
@@ -553,8 +569,9 @@ public class TestText {
     Display.setFullscreen(FULLSCREEN);
     DisplayMode d[] = Display.getAvailableDisplayModes();
     for (int i = 0; i < d.length; i++) {
-      // System.out.println("Width " + d[i].getWidth() + " Height " + d[i].getHeight() + " Bits " + d[i].getBitsPerPixel()); // ndhb temp
-      if ((d[i].getWidth() == Configuration.getWidth() && d[i].getHeight() == Configuration.getHeight() && d[i].getBitsPerPixel() == Configuration.getBitsPerPixel())) {
+      // System.out.println("Width " + d[i].getWidth() + " Height " + d[i].getHeight() + " Bits " + d[i].getBitsPerPixel() + " Freq " + d[i].getFrequency()); // ndhb temp
+      if ((d[i].getWidth() == Configuration.getWidth() && d[i].getHeight() == Configuration.getHeight() && d[i].getBitsPerPixel() == Configuration.getBitsPerPixel() && d[i].getFrequency() == 60)) {
+     // if ((d[i].getWidth() == Configuration.getWidth() && d[i].getHeight() == Configuration.getHeight() && d[i].getBitsPerPixel() == Configuration.getBitsPerPixel() && d[i].getFrequency() == 60)) {
         displayMode = d[i];
         break;
       } // if reasonable display mode detected
@@ -563,7 +580,7 @@ public class TestText {
     Display.setTitle(windowTitle);
     Display.setVSyncEnabled(Configuration.hasVsync()); // try framerate sync
     if (Configuration.hasAntiAliasing()) {
-      PixelFormat pf = new PixelFormat(8, 16, 0, 4); // antialias http://lwjglold.org/forum/viewtopic.php?t=1398
+      PixelFormat pf = new PixelFormat(8, 16, 0, 2); // antialias http://lwjglold.org/forum/viewtopic.php?t=1398
       Display.create(pf); 
     } else {
       Display.create();
@@ -625,12 +642,15 @@ public class TestText {
 
     // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xNOAA.bff"));
     // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xAA.bff"));
-    // text = new Text(new BitmapFileFont("asset/font/Courier512x512x32xNOAA.bff"));
+    text = new Text(new BitmapFileFont("asset/font/Courier512x512x32xNOAA.bff"));
     // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
-    text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
-    // text = new Text(new BitmapFileFont("asset/font/Verdana1024x1024xAAx32.bff"));
+    // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
+    // text = new Text(new BitmapFileFont("asset/font/Verdana1024x1024xAAx32.bff"), false);
     // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium4096x4096x32xNOAA.bff"));
 
+    Text textConsole = new Text(new BitmapFileFont("asset/font/Verdana1024x1024xAAx32.bff"));
+    console = new Console(textConsole);
+    
     // GL11.glClearColor(0.85f, 0.65f, 0.25f, 0);
     GL11.glClearColor(0, 0, 0, 0);
   } // method

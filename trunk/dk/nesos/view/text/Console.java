@@ -11,17 +11,18 @@ import org.lwjgl.util.*;
  *
  *
  * @author NDHB
- *
  */
 public final class Console {
 
-    private static final int INITIAL_CAPACITY = 48;
-    private static final Dimension DEFAULT_POSITION = new Dimension(0, 0);
+    private static final int DEFAULT_CAPACITY = 48;
+    private static final float DEFAULT_LINE_SPACING = 1f;
+    private static final Dimension DEFAULT_POSITION = new Dimension(200, 200);
     private static final Dimension DEFAULT_SIZE = new Dimension(10, 10);
     
-    private Dimension position;
-    private Dimension size;
-    private List list = Collections.synchronizedList(new ArrayList(INITIAL_CAPACITY));
+    private float lineSpacing = DEFAULT_LINE_SPACING;
+    private Dimension position = DEFAULT_POSITION;
+    private Dimension size = DEFAULT_SIZE;
+    private List<String> list = Collections.synchronizedList(new ArrayList<String>(DEFAULT_CAPACITY));
     private Text text;
     
     public Console(Text glText) {
@@ -34,17 +35,22 @@ public final class Console {
         this.size = size;
     } // constructor
     
+    public void renderGL() {
+      int x = position.getWidth();
+      int y = position.getHeight();
+      text.drawStrings2D(list.toArray(new String[list.size()]), x, y, 0, lineSpacing * text.getFont().cellHeight);
+    } // method
+    
     public void print(String s) {
         System.err.print(s);
     } // method
     
     public void println(String s) {
-        System.err.println(s);
+      list.add(s); // TODO: line separator
     } // method
     
     /**
      * <P>Clears all text in the buffer.
-     *
      */
     public void clear() {
         list.clear();
@@ -52,7 +58,6 @@ public final class Console {
     
     /**
      * <P>Clears all text in the buffer thats not visible.
-     *
      */
     public void clearHidden() {
         // TODO
@@ -63,27 +68,27 @@ public final class Console {
      */
     public Dimension getPosition() {
         return position;
-    }
+    } // method
     
     /**
      * @param position The position to set.
      */
     public void setPosition(Dimension position) {
         this.position = position;
-    }
+    } // method
     
     /**
      * @return Returns the size.
      */
     public Dimension getSize() {
         return size;
-    }
+    } // method
     
     /**
      * @param size The size to set.
      */
     public void setSize(Dimension size) {
         this.size = size;
-    }
+    } // method
     
 } // class
