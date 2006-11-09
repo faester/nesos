@@ -50,7 +50,7 @@ public class TestTemplate {
     private float minFPS = Short.MAX_VALUE;
     private long currentTime;
     private long timeToFPS;
-    private Text text;
+    private Font font;
     
     private Camera camera;
     
@@ -419,7 +419,7 @@ public class TestTemplate {
             framesRendered++;
         } // if time to update fps
         GL11.glColor3f(1, 0.6f, 0);
-        text.drawString2D("FPS: " + currentFPS + " (MIN: " + (int)minFPS + ", MAX: " + (int)maxFPS + ")", 0, 0); 
+        font.drawText2D("FPS: " + currentFPS + " (MIN: " + (int)minFPS + ", MAX: " + (int)maxFPS + ")", 0, 0); 
     } // method
   
     private void init() throws Exception {
@@ -494,18 +494,18 @@ public class TestTemplate {
         // camera = new Camera(new Vector3f(33, 55, 140), new Vector3f(0, 0, -1)); // create new camera
         camera = new Camera(new Vector3f(-200, 50f, 100f), new Vector3f(0.55f, 0.0f, 0.02f)); // create new camera
         
-        // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xNOAA.bff"));
-        // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xAA.bff"));
-        // text = new Text(new BitmapFileFont("asset/font/Courier512x512x32xNOAA.bff"));
-        // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
-        text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
+        // font = new Font(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xNOAA.bff"));
+        // font = new Font(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xAA.bff"));
+        // font = new Font(new BitmapFileFont("asset/font/Courier512x512x32xNOAA.bff"));
+        // font = new Font(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
+        font = new Font(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
         
         // GL11.glClearColor(0.15f, 0.15f, 0.15f, 0);
     } // method
 
     private void cleanup() {
-        if (text != null)
-        	text.cleanup();
+        if (font != null)
+        	font.cleanupGL();
         // Debug.println("GL warnings issued: " + GL.getNumWarningsIssued());
         Mouse.destroy();
         Keyboard.destroy();

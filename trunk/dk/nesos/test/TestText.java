@@ -62,8 +62,7 @@ public class TestText {
   private float lightDistance = 50;
   private FloatBuffer lightPos = BufferUtils.createFloatBuffer(4).put(0, lightDistance).put(1, 50).put(2, lightDistance).put(3, 1);
   Sphere lightSphere = new Sphere(); // create a "sun"
-
-  private Text text;
+  
   private Sphere sphere = new Sphere();
   private int sphereList;
   private int mipMapMax;
@@ -73,7 +72,9 @@ public class TestText {
   private float textRotationAngleDelta = 0.5f;
   private float alphaReference = 0;
 
-  private Console console;
+  private Font fontLucida, fontCourier;
+  private TextConsole textConsole;
+  private Text text;
   
   public static void main(String args[]) {
     TestText q = new TestText();
@@ -179,7 +180,7 @@ public class TestText {
     if (!key_f5 && Keyboard.isKeyDown(Keyboard.KEY_F5)) {
       key_f5 = true;
       // available
-      GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
+      GL11.glBindTexture(GL11.GL_TEXTURE_2D, fontLucida.getTextureName());
       GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_DECAL);
       Debug.println("GL_TEXTURE_ENV_MODE = GL_DECAL");
     } else if (key_f5 && !Keyboard.isKeyDown(Keyboard.KEY_F5)) {
@@ -190,7 +191,7 @@ public class TestText {
     if (!key_f6 && Keyboard.isKeyDown(Keyboard.KEY_F6)) {
       key_f6 = true;
       // available
-      GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
+      GL11.glBindTexture(GL11.GL_TEXTURE_2D, fontLucida.getTextureName());
       GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
       Debug.println("GL_TEXTURE_ENV_MODE = GL_REPLACE");
     } else if (key_f6 && !Keyboard.isKeyDown(Keyboard.KEY_F6)) {
@@ -201,7 +202,7 @@ public class TestText {
     if (!key_f7 && Keyboard.isKeyDown(Keyboard.KEY_F7)) {
       key_f7 = true;
       // available
-      GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
+      GL11.glBindTexture(GL11.GL_TEXTURE_2D, fontLucida.getTextureName());
       GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
       Debug.println("GL_TEXTURE_ENV_MODE = GL_MODULATE");
     } else if (key_f7 && !Keyboard.isKeyDown(Keyboard.KEY_F7)) {
@@ -212,7 +213,7 @@ public class TestText {
     if (!key_f8 && Keyboard.isKeyDown(Keyboard.KEY_F8)) {
       key_f8 = true;
       // available
-      GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
+      GL11.glBindTexture(GL11.GL_TEXTURE_2D, fontLucida.getTextureName());
       GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
       Debug.println("GL_TEXTURE_ENV_MODE = GL_BLEND");
     } else if (key_f8 && !Keyboard.isKeyDown(Keyboard.KEY_F8)) {
@@ -223,7 +224,7 @@ public class TestText {
     if (!key_f9 && Keyboard.isKeyDown(Keyboard.KEY_F9)) {
       key_f9 = true;
       // available
-      GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
+      GL11.glBindTexture(GL11.GL_TEXTURE_2D, fontLucida.getTextureName());
       GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_ADD);
       Debug.println("GL_TEXTURE_ENV_MODE = GL_ADD");
     } else if (key_f9 && !Keyboard.isKeyDown(Keyboard.KEY_F9)) {
@@ -234,7 +235,7 @@ public class TestText {
     if (!key_f10 && Keyboard.isKeyDown(Keyboard.KEY_F10)) {
       key_f10 = true;
       // available
-      GL11.glBindTexture(GL11.GL_TEXTURE_2D, text.getTextureName());
+      GL11.glBindTexture(GL11.GL_TEXTURE_2D, fontLucida.getTextureName());
       GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL13.GL_COMBINE);
       Debug.println("GL_TEXTURE_ENV_MODE = GL_COMBINE (1.3)");
     } else if (key_f10 && !Keyboard.isKeyDown(Keyboard.KEY_F10)) {
@@ -245,8 +246,6 @@ public class TestText {
     if (!key_f11 && Keyboard.isKeyDown(Keyboard.KEY_F11)) {
       key_f11 = true;
       // available
-      text.setDepthTesting(! text.hasDepthTesting());
-      Debug.println("glText.depthTesting: " + text.hasDepthTesting());
     } else if (key_f11 && !Keyboard.isKeyDown(Keyboard.KEY_F11)) {
       key_f11 = false;
     } // if else
@@ -254,10 +253,7 @@ public class TestText {
     // KEY_F12
     if (!key_f12 && Keyboard.isKeyDown(Keyboard.KEY_F12)) {
       key_f12 = true;
-      text.setLighting(! text.hasLighting());
-      Debug.println("glText.lighting: " + text.hasLighting());
-//    camera = new Camera();
-//    camera.refresh();
+      // available
     } else if (key_f12 && !Keyboard.isKeyDown(Keyboard.KEY_F12)) {
       key_f12 = false;
     } // if else
@@ -305,31 +301,31 @@ public class TestText {
     // KEY_1
     if (Keyboard.isKeyDown(Keyboard.KEY_1)) {
       // available
-      text.setAnisotropicFiltering(1f);
+      // fontLucida.setAnisotropicFiltering(1f);
     } // if
 
     // KEY_2
     if (Keyboard.isKeyDown(Keyboard.KEY_2)) {
       // available
-      text.setAnisotropicFiltering(2f);
+      // fontLucida.setAnisotropicFiltering(2f);
     } // if
 
     // KEY_4
     if (Keyboard.isKeyDown(Keyboard.KEY_4)) {
       // available
-      text.setAnisotropicFiltering(4f);
+      // fontLucida.setAnisotropicFiltering(4f);
     } // if
 
     // KEY_8
     if (Keyboard.isKeyDown(Keyboard.KEY_8)) {
       // available
-      text.setAnisotropicFiltering(8f);
+      // fontLucida.setAnisotropicFiltering(8f);
     } // if
 
     // KEY_PERIOD
     if (Keyboard.isKeyDown(Keyboard.KEY_PERIOD)) {
       // available
-      int name = text.getTextureName();
+      int name = fontLucida.getTextureName();
       GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
       GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, (mipMapMax == 0 ? 0 : --mipMapMax));
       Debug.println("MipMap Texture Max Level Decreasing: " + mipMapMax);
@@ -338,7 +334,7 @@ public class TestText {
     // KEY_COMMA
     if (Keyboard.isKeyDown(Keyboard.KEY_COMMA)) {
       // available
-      int name = text.getTextureName();
+      int name = fontLucida.getTextureName();
       GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
       GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LEVEL, ++mipMapMax);
       Debug.println("MipMap Texture Max Level Increase: " + mipMapMax);
@@ -347,7 +343,7 @@ public class TestText {
     // KEY_N
     if (Keyboard.isKeyDown(Keyboard.KEY_N)) {
       // available
-      int name = text.getTextureName();
+      int name = fontLucida.getTextureName();
       GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
       GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LOD, (mipMapMaxLOD == 0 ? 0 : --mipMapMaxLOD));
       Debug.println("MipMap Texture MAX LOD Decreasing: " + mipMapMaxLOD);
@@ -357,7 +353,7 @@ public class TestText {
     // KEY_M
     if (Keyboard.isKeyDown(Keyboard.KEY_M)) {
       // available
-      int name = text.getTextureName();
+      int name = fontLucida.getTextureName();
       GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
       GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MAX_LOD, ++mipMapMaxLOD);
       Debug.println("MipMap Texture MAX LOD Increase: " + mipMapMaxLOD);
@@ -367,7 +363,7 @@ public class TestText {
     // KEY_V
     if (Keyboard.isKeyDown(Keyboard.KEY_V)) {
       // available
-      int name = text.getTextureName();
+      int name = fontLucida.getTextureName();
       GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
       GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MIN_LOD, (mipMapMinLOD == 0 ? 0 : --mipMapMinLOD));
       Debug.println("MipMap Texture MIN LOD Decreasing: " + mipMapMinLOD);
@@ -377,7 +373,7 @@ public class TestText {
     // KEY_B
     if (Keyboard.isKeyDown(Keyboard.KEY_B)) {
       // available
-      int name = text.getTextureName();
+      int name = fontLucida.getTextureName();
       GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
       GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL12.GL_TEXTURE_MIN_LOD, ++mipMapMinLOD);
       Debug.println("MipMap Texture MIN LOD Increase: " + mipMapMinLOD);
@@ -400,11 +396,13 @@ public class TestText {
 
     // KEY_P
     if (Keyboard.isKeyDown(Keyboard.KEY_P)) {
-      long start = System.nanoTime();
-      console.println("System.nanoTime(): " + start);
-      try { Thread.sleep(50); } catch (InterruptedException e) { /* doh */ }
-      long end = System.nanoTime();
-      System.out.println("drawString: " + (float)((end - start) / 1000000f) + " ms");
+      textConsole.println("Hello console... " + Math.random());
+      try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
+    } // if
+    
+    // KEY_C
+    if (Keyboard.isKeyDown(Keyboard.KEY_C)) {
+      textConsole.clear();
     } // if
     
     // KEY_NUMPAD1
@@ -475,15 +473,18 @@ public class TestText {
         camera.lookDown(0.5f);
       } // if mouse move vertically
       Mouse.setGrabbed(true);
+    } else if (Mouse.isButtonDown(0)) {
+      textConsole.setPosition(Mouse.getX(), Mouse.getY());
     } else {
       Mouse.setGrabbed(false);
-    } // if else
-  } // method
+    } // if mouse
 
+  } // method
+  
   private void render() {
     camera.refresh();
 
-    GL11.glAlphaFunc(GL11.GL_GREATER, alphaReference);
+    GL11.glAlphaFunc(GL11.GL_GREATER, alphaReference); // for testing alpha func
     
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); // clear buffers
 
@@ -502,7 +503,7 @@ public class TestText {
     camera.drawAxis();
 
     // draw spheres
-    if (false) {
+    if (true) {
       if (sphereList == 0) {
         sphereList = GL11.glGenLists(1);
         GL11.glNewList(sphereList, GL11.GL_COMPILE);
@@ -526,29 +527,26 @@ public class TestText {
 
     if (true) {
       GL11.glColor3f(1, 1, 1);
-      text.drawTexture(100, 100);
+      fontLucida.drawTexture(100, 100);
     } // if textures
-
+        
     if (true) {
       GL11.glColor3f(0.35f, 0.35f, 0.7f);
       // GL11.glColor3f(0f, 0f, 0f);
-      // GL11.glColor3f(1f, 1f, 1f);
-      textRotationAngle += textRotationAngleDelta * 0.025f;
-      // GL11.glPushMatrix(); // store modelview matrix
-      // GL11.glRotatef(textRotationAngle, 0, 1, 0);
+      // GL11.glColor3f(1f, 1f, 1f);      
+      GL11.glPushMatrix(); // store matrix
+      textRotationAngle += textRotationAngleDelta * 0.25f;
+      GL11.glRotatef(textRotationAngle, 0, 1, 0);
       // GL11.glScalef(1f, 2f, 1f);
-      // text.drawString3D(testString, (float)Math.sin(textRotationAngle) * 20f, 0, (float)Math.cos(textRotationAngle) * 20f);
-      text.drawString3D(testString, 0, 0, (float)Math.cos(textRotationAngle) * 20f);
-      // text.drawString3D(testString, 0, 0, 5);
-      // GL11.glPopMatrix(); // restore matrix
-      // GL11.glColor3f(1f, 1f, 1f);
-      // text.drawString3D("Hello World!", 0, -32f, 5f);
-    } // if drawString3D
+      // GL11.glTranslatef(0, 0, (float)Math.cos(textRotationAngle) * 20f);
+      text.draw3D();
+      GL11.glPopMatrix(); // restore matrix
+    } // if
 
     if (true) {
-      GL11.glColor3f(1f, 1f, 1f);
-      console.renderGL();
-    } // if console
+      GL11.glColor3f(1f, 0f, 0f);
+      textConsole.renderGL();
+    } // if
     
     currentTime = System.currentTimeMillis();
     if (currentTime > timeToFPS) {
@@ -561,7 +559,7 @@ public class TestText {
       framesRendered++;
     } // if time to update fps
     GL11.glColor3f(1, 0.8f, 0);
-    text.drawString2D("FPS: " + currentFPS + " (MIN: " + (int)minFPS + ", MAX: " + (int)maxFPS + ")", 0, 0);
+    fontLucida.drawText2D("FPS: " + currentFPS + " (MIN: " + (int)minFPS + ", MAX: " + (int)maxFPS + ")", 0, 0);
   } // method
 
   private void init() throws Exception {
@@ -585,14 +583,13 @@ public class TestText {
     } else {
       Display.create();
     } // if else
-    Display.setLocation(0,0); // ndhb - dont cover console window
+    Display.setLocation(0,0); // ndhb - dont cover textConsole window
     Keyboard.create();
     Mouse.create();
 
     // set rendering preferences
     GL11.glEnable(GL11.GL_DEPTH_TEST); // enables depth testing
     GL11.glDepthFunc(GL11.GL_LEQUAL); // type of depth testing
-    // GL11.glDepthFunc(GL11.GL_LESS); // type of depth testing
 
     if (Configuration.hasCullFace()) { 
       GL11.glEnable(GL11.GL_CULL_FACE); // cull back faces
@@ -633,35 +630,42 @@ public class TestText {
     // GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
     // GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_DST_COLOR);
 
-    GL11.glAlphaFunc(GL11.GL_GREATER, 0f);
-    GL11.glEnable(GL11.GL_ALPHA_TEST);
-    
     // camera = new Camera(new Vector3f(33, 55, 140), new Vector3f(0, 0, -1)); // front
     camera = new Camera(new Vector3f(106.42713f, 27.0f, 38.21351f), new Vector3f(-0.51368123f, 0.0f, -0.84130013f));
     // camera = new Camera(new Vector3f(-200, 50f, 100f), new Vector3f(0.55f, 0.0f, 0.02f)); // anisotrophic
 
-    // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xNOAA.bff"));
-    // text = new Text(new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8xAA.bff"));
-    text = new Text(new BitmapFileFont("asset/font/Courier512x512x32xNOAA.bff"));
-    // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAAxSAT.bff"));
-    // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32xAA.bff"));
-    // text = new Text(new BitmapFileFont("asset/font/Verdana1024x1024xAAx32.bff"), false);
-    // text = new Text(new BitmapFileFont("asset/font/FranklinGothicMedium4096x4096x32xNOAA.bff"));
-
-    Text textConsole = new Text(new BitmapFileFont("asset/font/Verdana1024x1024xAAx32.bff"));
-    console = new Console(textConsole);
+    BitmapFont lucidaBitmapFont = new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8.bff");
+    // BitmapFont lucidaBitmapFont = new BitmapFileFont("asset/font/LucidaSansUnicode512x512x32.bff");
+    // BitmapFont courierBitmapFont = new BitmapFileFont("asset/font/Courier512x512x32.bff");
+    BitmapFont courierBitmapFont = new BitmapFileFont("asset/font/Courier256x256x8.bff");
+    
+    fontLucida = new Font(lucidaBitmapFont);
+    fontCourier = new Font(courierBitmapFont);
+    
+    textConsole = new TextConsole(fontCourier, 0, Display.getDisplayMode().getHeight() - 16, 10);
+    // textConsole = new TextConsole(fontLucida, 0, Display.getDisplayMode().getHeight() - 16, 10);
+    textConsole.initGL();
+    
+    text = new Text(fontCourier, testString);
+    text.initGL();
     
     // GL11.glClearColor(0.85f, 0.65f, 0.25f, 0);
     GL11.glClearColor(0, 0, 0, 0);
   } // method
 
   private void cleanup() {
+    if (fontLucida != null)
+      fontLucida.cleanupGL();
+    if (fontCourier != null)
+      fontCourier.cleanupGL();
     if (text != null)
-      text.cleanup();
-    // Debug.println("GL warnings issued: " + GL.getNumWarningsIssued());
+      text.cleanupGL();
+    if (textConsole != null);
+      textConsole.cleanupGL();
     Mouse.destroy();
     Keyboard.destroy();
-    Display.destroy();        
+    Display.destroy();
+    // Debug.println("GL warnings issued: " + GL.getNumWarningsIssued());
   } // method
 
 } // class

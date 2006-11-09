@@ -1,5 +1,7 @@
 package dk.nesos.view.camera;
 
+import static org.lwjgl.opengl.GL11.*;
+
 import java.nio.*;
 
 import org.lwjgl.*;
@@ -8,10 +10,9 @@ import org.lwjgl.opengl.glu.*;
 import org.lwjgl.util.vector.*;
 
 /**
- * <P>
  * Simulates a simple camera in OpenGL.
  * <P>
- * <B>NOTE: Upwards is defined to be the Vector [0, 1, 0].</B>
+ * <B>Note: Upwards is defined to be the Vector [0, 1, 0].</B>
  * 
  * @see org.lwjgl.opengl.glu.GLU#gluLookAt(float, float, float, float, float,
  *      float, float, float, float)
@@ -30,19 +31,18 @@ public final class Camera {
    * Storage for the projection matrix 
    */
   private FloatBuffer proj = BufferUtils.createFloatBuffer(16);
-  
+
   /**
    * Storage for the modelview matrix 
    */
   private FloatBuffer modl = BufferUtils.createFloatBuffer(16);
-  
+
   /**
    * Storage for the clip planes 
    */
   private FloatBuffer clip = BufferUtils.createFloatBuffer(16);
-  
+
   /**
-   * <P>
    * The direction in 3D space of the camera.
    * <P>
    * The camera is always looking in this direction.
@@ -50,28 +50,55 @@ public final class Camera {
   private Vector3f direction;
 
   /**
-   * <P>
    * The 6 frustum planes defined by the view.
    */
   private Frustum[] frustums = new Frustum[NUMBER_OF_FRUSTUMS];
 
   /**
-   * <P>
    * The position in 3D space of the camera.
    * <P>
    * The position of the virtual observer.
    */
   private Vector3f position;
 
-
   /**
-   * <P>
    * Display List name for drawing axis
    */
   private int axisListName;
-
+  
+  public static void beginOrthographicProjection() {
+    beginOrthographicProjection(Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
+  } // method
+  
   /**
+   * Prepares an orthographic projection matrix. Saves the current projection matrix on the stack.
    * <P>
+   * <B>Remember to call <code>endOrtographicProjection</code> when done in orthographic mode</B>
+   *
+   * @param width of the projection screen
+   * @param height of the projection screen
+   */
+  public static void beginOrthographicProjection(int width, int height) {
+    glMatrixMode(GL_PROJECTION); // switch to projection stack
+    glPushMatrix(); // store projection matrix
+    glLoadIdentity(); // reset matrix
+    GLU.gluOrtho2D(0, width, 0, height); // set a 2D orthographic projection
+    glMatrixMode(GL_MODELVIEW); // switch to projection stack
+    GL11.glPushMatrix(); // store current matrix
+    GL11.glLoadIdentity(); // need identity matrix for translation in orthographic perspective
+  } // method
+  
+  /**
+   * Restores the previous projection from the stack.
+   */
+  public static void endOrthographicProjection() {
+    glMatrixMode(GL_PROJECTION); // switch to projection stack
+    glPopMatrix(); // restore perspective matrix
+    glMatrixMode(GL_MODELVIEW); // switch to projection stack
+    glPopMatrix();
+  } // method
+  
+  /**
    * This constructor quickly sets UP a camera at [1, 20, 1] with direction
    * [1, 0, 0].
    * <P>
@@ -83,7 +110,6 @@ public final class Camera {
   } // constructor
 
   /**
-   * <P>
    * This constructor sets UP a camera and its direction at the supplied
    * locations in 3D space.
    */
@@ -96,7 +122,6 @@ public final class Camera {
   } // constructor
 
   /**
-   * <P>
    * Retrieves the direction in 3D space of the camera.
    * 
    * @return Vector3f representing the camera direction.
@@ -106,7 +131,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Retrieves the computed frustums.
    * 
    * @return Returns the frustums
@@ -137,7 +161,6 @@ public final class Camera {
   //    
 
   /**
-   * <P>
    * Retrieves the position in 3D space of the camera.
    * 
    * @return Vector3f representing the camera position.
@@ -147,9 +170,7 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Rotates the direction of the camera downwards.
-   * 
    * <P>
    * <B>Note: Specify degrees (instead of radians).</B>
    * 
@@ -163,9 +184,7 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Rotates the camera direction in the XZ-plane.
-   * 
    * <P>
    * <B>Note: Specify degrees (instead of radians).</B>
    * 
@@ -178,9 +197,7 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Rotates the camera direction in the XZ-plane.
-   * 
    * <P>
    * <B>Note: Specify degrees (instead of radians).</B>
    * 
@@ -193,9 +210,7 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Rotates the direction of the camera upwards.
-   * 
    * <P>
    * <B>Note: Specify degrees (instead of radians).</B>
    * 
@@ -209,7 +224,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera backwards in the current direction.
    * <P>
    * The Y-coordinate remains unchanged.
@@ -223,7 +237,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera backwards and to the left of the current
    * direction.
    * 
@@ -236,7 +249,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera backwards and to the right of the
    * current direction.
    * 
@@ -249,7 +261,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera downwards in the Y-axis.
    * 
    * @param delta
@@ -274,7 +285,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera forwards and to the left of the current
    * direction.
    * 
@@ -287,7 +297,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera forwards and to the right of the current
    * direction.
    * 
@@ -300,7 +309,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera to the left of the current direction.
    * 
    * @param delta
@@ -312,7 +320,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera to the right of the current direction.
    * 
    * @param delta
@@ -324,7 +331,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Moves the position of the camera upwards in the Y-axis.
    * 
    * @param delta
@@ -335,7 +341,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Performs an update of the view.
    * <P>
    * After modifying the camera position or direction this method should be
@@ -350,7 +355,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Rotates the direction around an arbitrary axis (represented by a vector).
    * 
    * @link http://www.cprogramming.com/tutorial/3d/rotation.html
@@ -380,13 +384,11 @@ public final class Camera {
   /**
    * Rotating the view around the X-axis can be achieved by multiplying the
    * matrix:<BR>
-   * 
    * <PRE>
    *              [ 1       0        0      ] 
    *   R_x(t) =   [ 0       cos(t)  -sin(t) ]
    *              [ 0       sin(t)  cos(t)  ]
    * </PRE>
-   * 
    * <BR>
    * with the direction vector.
    * <P>
@@ -405,13 +407,11 @@ public final class Camera {
   /**
    * Rotating the view around the Y-axis can be achieved by multiplying the
    * matrix:<BR>
-   * 
    * <PRE>
    *              [ cos(t)  0       sin(t)  ] 
    *   R_y(t) =   [ 0       1       0       ]
    *              [ -sin(t) 0       cos(t)  ]
    * </PRE>
-   * 
    * <BR>
    * with the direction vector.
    * <P>
@@ -453,7 +453,7 @@ public final class Camera {
   } // method
 
   /**
-   * <P>Sets the camera looking in the specified direction.
+   * Sets the camera looking in the specified direction.
    * 
    * @param direction The direction to set.
    */
@@ -462,7 +462,7 @@ public final class Camera {
   } // method
 
   /**
-   * <P>Sets the camera at the specified position.
+   * Sets the camera at the specified position.
    * 
    * @param position The position to set.
    */
@@ -471,7 +471,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Returns a string representation of the position and direction.
    * 
    * @see java.lang.Object#toString()
@@ -489,7 +488,6 @@ public final class Camera {
   } // method
 
   /**
-   * <P>
    * Computes the frustum planes based on the current ModelView and Projection
    * matrices.
    * <P>
@@ -569,8 +567,7 @@ public final class Camera {
   } // method
 
   /**
-   * <P>Draws lines along the axis of the current coordinate system.
-   *
+   * Draws lines along the axis of the current coordinate system.
    */
   public void drawAxis() {
     if (axisListName == 0) { // create display list
