@@ -14,9 +14,9 @@ import dk.nesos.view.camera.*;
 import dk.nesos.view.text.*;
 
 /**
- * <P>For testing the view.text.* classes
- * 
- * <P>Take a look at the input method - there are many filtering and sampling options to try out. 
+ * For testing the view.text.* classes
+ * <P>
+ * Take a look at the input method - there are many filtering and sampling options to try out. 
  * 
  * @author ndhb, mhf
  *
@@ -24,7 +24,7 @@ import dk.nesos.view.text.*;
 public class TestText {
 
   private static final String testString = "The quick onyx goblin jumps over the lazy dwarf";
-  private static final float FPS_UPDATE_TIME = 1000;
+  private static final float FPS_UPDATE_TIME = 250;
   private static boolean FULLSCREEN = false;
 
   private boolean key_f1 = false;
@@ -544,7 +544,7 @@ public class TestText {
     } // if
 
     if (true) {
-      GL11.glColor3f(1f, 0f, 0f);
+      GL11.glColor4f(1f, 1f, 1f, 0.75f);
       textConsole.renderGL();
     } // if
     
@@ -558,7 +558,7 @@ public class TestText {
     } else {
       framesRendered++;
     } // if time to update fps
-    GL11.glColor3f(1, 0.8f, 0);
+    GL11.glColor4f(1f, 1f, 1f, 0.25f);
     fontLucida.drawText2D("FPS: " + currentFPS + " (MIN: " + (int)minFPS + ", MAX: " + (int)maxFPS + ")", 0, 0);
   } // method
 
@@ -634,8 +634,8 @@ public class TestText {
     camera = new Camera(new Vector3f(106.42713f, 27.0f, 38.21351f), new Vector3f(-0.51368123f, 0.0f, -0.84130013f));
     // camera = new Camera(new Vector3f(-200, 50f, 100f), new Vector3f(0.55f, 0.0f, 0.02f)); // anisotrophic
 
-    BitmapFont lucidaBitmapFont = new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8.bff");
-    // BitmapFont lucidaBitmapFont = new BitmapFileFont("asset/font/LucidaSansUnicode512x512x32.bff");
+    // BitmapFont lucidaBitmapFont = new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8.bff");
+    BitmapFont lucidaBitmapFont = new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32.bff");
     // BitmapFont courierBitmapFont = new BitmapFileFont("asset/font/Courier512x512x32.bff");
     BitmapFont courierBitmapFont = new BitmapFileFont("asset/font/Courier256x256x8.bff");
     
