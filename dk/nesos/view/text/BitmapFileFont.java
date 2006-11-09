@@ -75,5 +75,30 @@ public final class BitmapFileFont extends BitmapFont {
       throw new UnsupportedOperationException("Unsupported format version: 0x" + Integer.toHexString(version).toUpperCase());
     } // if supported version
   } // method
-
+  
+  @Override
+  public String toString() {
+      String LINE_SEPARATOR = System.getProperty("line.separator");
+      StringBuilder s = new StringBuilder();
+      s.append(super.toString() + LINE_SEPARATOR);
+      s.append("width = " + width + LINE_SEPARATOR);
+      s.append("height = " + height + LINE_SEPARATOR);
+      s.append("bitsPerPixel = " + bitsPerPixel + LINE_SEPARATOR);
+      s.append("glFormat = " + glFormat + LINE_SEPARATOR);
+      s.append("glInternalFormat = " + glInternalFormat + LINE_SEPARATOR);
+      s.append("cellWidth = " + cellWidth + LINE_SEPARATOR);
+      s.append("cellHeight = " + cellHeight + LINE_SEPARATOR);
+      s.append("baseCharacter = " + baseCharacter + LINE_SEPARATOR);
+      s.append("lastCharacter = " + lastCharacter + LINE_SEPARATOR);
+      s.append("charactersPerRow = " + charactersPerRow + LINE_SEPARATOR);
+      s.append("rowFactor = " + rowFactor + LINE_SEPARATOR);
+      s.append("columnFactor = " + columnFactor + LINE_SEPARATOR);
+      s.append("characterWidths = { ");
+      for (int i = 0; i < characterWidths.length; i++) {
+          s.append(characterWidths[i] + (i < characterWidths.length - 1 ? ", " : ""));
+      } // for
+      s.append(" }");
+      return s.toString();
+  } // method
+  
 } // class

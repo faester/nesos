@@ -46,12 +46,12 @@ public final class Text {
 
   public void draw2D(int x, int y) {
     Camera.beginOrthographicProjection();
-    GL11.glMatrixMode(GL11.GL_MODELVIEW); // switch to modelview stack
-    GL11.glPushMatrix(); // store current matrix
-    GL11.glLoadIdentity(); // need identity matrix for translation in orthographic perspective
+    GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+    GL11.glDisable(GL11.GL_DEPTH_TEST);
+    GL11.glDepthMask(false);
     GL11.glTranslatef(x, y, 0); // translate to position
     renderGL();
-    GL11.glPopMatrix(); // restore modelview matrix
+    GL11.glPopAttrib();
     Camera.endOrthographicProjection();
   } // method
 

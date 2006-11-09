@@ -21,6 +21,7 @@ public final class TextureManager {
 
   private static IntBuffer tmpIntBuffer = BufferUtils.createIntBuffer(1); // temporary data
   private static FloatBuffer tmpFloatBuffer = BufferUtils.createFloatBuffer(16); // temporary data
+//  private static float MAX_TEXTURE_MAX_ANISOTROPY_EXT; // implementation specific constant cached
   
   public static boolean isTextureResident(int name, int textureType) {
     GL11.glBindTexture(textureType, name);  
@@ -47,6 +48,27 @@ public final class TextureManager {
       System.err.println("Internal Format: " + (int) tmpFloatBuffer.get(0));
     } // if
     return compressed;
+  } // method
+  
+  /**
+   * <P>Enables or disables anisotropic filtering on the font texture.
+   * 
+   * <P>Valid values are between 1.0 and the implementation specific constant GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT (both inclusive).
+   * 
+   * <P>A value of 1.0 effectively disables anisotropic filtering.
+   *
+   * @param value
+   */
+  public static void setAnisotropicFiltering(int name, float value) {
+    if (!GLContext.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+      throw new UnsupportedOperationException("Anisotropic Texture Filtering is not available (OpenGL doesn't report the extension EXT_texture_filter_anisotropic)!");
+    } // if
+//    if (MAX_TEXTURE_MAX_ANISOTROPY_EXT == 0) {
+//      GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, tmpFloatBuffer);
+//      MAX_TEXTURE_MAX_ANISOTROPY_EXT = tmpFloatBuffer.get(0);
+//    } // if supported maximum anisotropic is unknown, query it 
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
+    GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, value);
   } // method
   
 } // class
