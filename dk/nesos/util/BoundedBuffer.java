@@ -1,9 +1,9 @@
-package dk.nesos.view.text;
+package dk.nesos.util;
 
 import java.util.*;
 
 /**
- * Simple bounded buffer implementation
+ * Simple bounded buffer implementation [NOT USED ATM]
  *
  * @author ndhb
  */
