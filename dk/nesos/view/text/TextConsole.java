@@ -1,7 +1,5 @@
 package dk.nesos.view.text;
 
-import java.util.*;
-
 import org.lwjgl.opengl.*;
 
 import dk.nesos.view.camera.*;
@@ -13,9 +11,7 @@ import dk.nesos.view.camera.*;
  */
 public final class TextConsole {
 
-  private static final int DEFAULT_CAPACITY = 48;
-  
-  private List<Text> list = new ArrayList<Text>(DEFAULT_CAPACITY);
+  private BoundedBuffer<Text> entries; 
   private int positionX;
   private int positionY;
   private int lines;
@@ -26,6 +22,7 @@ public final class TextConsole {
     this.positionX = positionX;
     this.positionY = positionY;
     this.lines = lines;
+    entries = new BoundedBuffer<Text>(lines);
   } // constructor
 
   public void initGL() {
@@ -39,11 +36,10 @@ public final class TextConsole {
     GL11.glDisable(GL11.GL_DEPTH_TEST);
     GL11.glDepthMask(false);
     GL11.glTranslatef(positionX, positionY, 0); // translate to position
-    Iterator<Text> iterator = list.iterator();
-    while (iterator.hasNext()) {
-      Text text = iterator.next();
+    for (int i = 0; i < entries.getSize(); i++) {
+      Text text = entries.get(i);
       GL11.glPushMatrix();
-      text.renderGL(); 
+      text.renderGL();
       GL11.glPopMatrix();
       GL11.glTranslatef(0, -lineHeight, 0); // translate offsets for next line
     } // while
@@ -52,9 +48,8 @@ public final class TextConsole {
   } // method  
   
   public void cleanupGL() {
-    Iterator<Text> iterator = list.iterator();
-    while (iterator.hasNext()) {
-      Text text = iterator.next();
+    for (int i = 0; i < lines; i++) {
+      Text text = (Text)entries.get(i);
       text.cleanupGL();
     } // while
   } // method
@@ -62,21 +57,11 @@ public final class TextConsole {
   public void println(String string) {
     Text text = new Text(font, string);
     text.initGL();
-    list.add(text);
+    entries.add(text);
   } // method
 
-  /**
-   * Clears all entries.
-   */
   public void clear() {
-    list.clear();
-  } // method
-
-  /**
-   * Clears only the hidden entries.
-   */
-  public void clearHidden() {
-    // TODO
+    entries = new BoundedBuffer(lines);    
   } // method
 
   public int getPositionX() {

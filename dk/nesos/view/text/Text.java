@@ -79,4 +79,9 @@ public final class Text {
     return font;
   } // method
 
+  @Override
+  public String toString() {
+    return string;
+  } // mehod
+  
 } // class
