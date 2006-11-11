@@ -19,7 +19,7 @@ import org.lwjgl.opengl.*;
  */
 public final class TextureManager {
 
-  private static IntBuffer tmpIntBuffer = BufferUtils.createIntBuffer(1); // temporary data
+  private static IntBuffer tmpIntBuffer = BufferUtils.createIntBuffer(16); // temporary data
   private static FloatBuffer tmpFloatBuffer = BufferUtils.createFloatBuffer(16); // temporary data
 //  private static float MAX_TEXTURE_MAX_ANISOTROPY_EXT; // implementation specific constant cached
   
@@ -48,6 +48,34 @@ public final class TextureManager {
       System.err.println("Internal Format: " + (int) tmpFloatBuffer.get(0));
     } // if
     return compressed;
+  } // method
+  
+  public static boolean isTextureCompressed2(int name) {
+    GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
+    GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, 0, ARBTextureCompression.GL_TEXTURE_COMPRESSED_ARB, tmpFloatBuffer); // FIXME: Allow EXTTextureCompressionS3TC a.o. as well?
+    boolean compressed = tmpFloatBuffer.get(0) != 0.0f;
+    System.err.println("Compressed = " + compressed); // DEBUG
+    if (compressed) {
+      GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, 0, ARBTextureCompression.GL_TEXTURE_IMAGE_SIZE_ARB, tmpFloatBuffer);
+      System.err.println("Compressed Size: " + tmpFloatBuffer.get(0)); // DEBUG
+    } //else {
+      GL11.glGetTexLevelParameter(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_INTERNAL_FORMAT, tmpFloatBuffer); // DEBUG
+      System.err.println("Internal Format: " + (int) tmpFloatBuffer.get(0));
+    // } // if
+    return compressed;
+  } // method
+  
+  public static void listTextureCompressionFormats() {
+    GL11.glGetInteger(ARBTextureCompression.GL_COMPRESSED_TEXTURE_FORMATS_ARB, tmpIntBuffer);
+    for (int i = 0; i < 16; i++) {
+      int format = tmpIntBuffer.get(i);
+      switch (format) {
+        case 0x83f0: System.out.println("GL_COMPRESSED_RGB_S3TC_DXT1_EXT (" + 0x83f0 + ")"); break;
+        case 0x83f1: System.out.println("GL_COMPRESSED_RGBA_S3TC_DXT1_EXT (" + 0x83f1 + ")"); break;
+        case 0x83f2: System.out.println("GL_COMPRESSED_RGBA_S3TC_DXT3_EXT (" + 0x83f2 + ")"); break;
+        case 0x83f3: System.out.println("GL_COMPRESSED_RGBA_S3TC_DXT5_EXT (" + 0x83f3 + ")"); break;
+      } // switch
+    } // for
   } // method
   
   /**

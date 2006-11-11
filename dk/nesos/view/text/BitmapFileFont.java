@@ -8,14 +8,13 @@ import org.lwjgl.*;
 import org.lwjgl.opengl.*;
 
 /**
- * <P>Reads the .bff file format. This file format is used by
- * <P>Codehead's Bitmap Font Generator (http://www.codehead.co.uk/cbfg)
- * <P>(the fileformat specification is described in the help file)
+ * Reads the .bff file format. This file format is used by
+ * Codehead's Bitmap Font Generator (http://www.codehead.co.uk/cbfg)
+ * (the fileformat specification is described in the help file)
  *
  * @author NDHB
- *
  */
-public final class BitmapFileFont extends BitmapFont {
+public final class BitmapFileFont implements BitmapFont {
 
   private static final int BFF_VERSION2_FORMAT = 0xF2BF;
 
@@ -30,6 +29,21 @@ public final class BitmapFileFont extends BitmapFont {
   private static final int NUM_CHARACTER_WIDTH = 256;
   private static final int IMAGE_DATA_OFFSET = 276; // same as CHARACTER_WIDTH_OFFSET + NUM_CHARACTER_WIDTH
 
+  private int width;
+  private int height;
+  private byte bitsPerPixel;
+  private int glFormat;
+  private int glInternalFormat;
+  private int cellWidth;
+  private int cellHeight;
+  private int baseCharacter;
+  private int lastCharacter;
+  private int charactersPerRow;
+  private float rowFactor;
+  private float columnFactor;
+  private byte[] characterWidths;
+  private ByteBuffer imageData;
+  
   public BitmapFileFont(String filename) {
     File file = new File(filename);
     ByteBuffer buffer = BufferUtils.createByteBuffer((int)file.length());
@@ -64,16 +78,71 @@ public final class BitmapFileFont extends BitmapFont {
       buffer.position(CHARACTER_WIDTH_OFFSET);
       buffer.get(characterWidths, 0, NUM_CHARACTER_WIDTH); // read into array of character widths
       switch (bitsPerPixel) { // choose an appropriate OpenGL format
-        case 8  : glFormat = GL11.GL_ALPHA; glInternalFormat = ARBTextureCompression.  GL_COMPRESSED_ALPHA_ARB; break;
+        case 8  : glFormat = GL11.GL_ALPHA; glInternalFormat = ARBTextureCompression.GL_COMPRESSED_ALPHA_ARB; break;      
         case 24 : glFormat = GL11.GL_RGB; glInternalFormat = ARBTextureCompression.GL_COMPRESSED_RGB_ARB; break;
         case 32 : glFormat = GL11.GL_RGBA; glInternalFormat = ARBTextureCompression.GL_COMPRESSED_RGBA_ARB; break;
-        // case 32  : glFormat = GL11.GL_RGBA; glInternalFormat = EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; break;
       } // switch
       buffer.position(IMAGE_DATA_OFFSET); // position where image data begins
       imageData = buffer.slice(); // the rest is image data
     } else {
       throw new UnsupportedOperationException("Unsupported format version: 0x" + Integer.toHexString(version).toUpperCase());
     } // if supported version
+  } // method
+  
+  public int getBaseCharacter() {
+    return baseCharacter;
+  } // method
+  
+  public byte getBitsPerPixel() {
+    return bitsPerPixel;
+  } // method
+  
+  public int getCellHeight() {
+    return cellHeight;
+  } // method
+  
+  public int getCellWidth() {
+    return cellWidth;
+  } // method
+  
+  public int getCharactersPerRow() {
+    return charactersPerRow;
+  } // method
+  
+  public byte[] getCharacterWidths() {
+    return characterWidths;
+  } // method
+  
+  public float getColumnFactor() {
+    return columnFactor;
+  } // method
+  
+  public int getGlFormat() {
+    return glFormat;
+  } // method
+  
+  public int getGlInternalFormat() {
+    return glInternalFormat;
+  } // method
+  
+  public int getHeight() {
+    return height;
+  } // method
+  
+  public ByteBuffer getImageData() {
+    return imageData;
+  } // method
+  
+  public int getLastCharacter() {
+    return lastCharacter;
+  } // method
+  
+  public float getRowFactor() {
+    return rowFactor;
+  } // method
+  
+  public int getWidth() {
+    return width;
   } // method
   
   @Override
