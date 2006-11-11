@@ -35,7 +35,7 @@ public final class Font {
     this.font = font;
     textureName = createFontTexture();
     listBaseName = createDisplayLists();
-    characterIndex = listBaseName - font.baseCharacter;
+    characterIndex = listBaseName - font.getBaseCharacter();
   } // constructor
 
   public int getCharacterIndex() {
@@ -50,7 +50,7 @@ public final class Font {
    * <P>Releases previously allocated resources (ie. display lists and texture object).
    */
   public void cleanupGL() {
-    int requiredLists = font.lastCharacter - font.baseCharacter;
+    int requiredLists = font.getLastCharacter() - font.getBaseCharacter();
     // System.err.println("GLText.cleanup: glDeleteLists(" + listBaseName + ", " + requiredLists + ");"); // DEBUG
     GL11.glDeleteLists(listBaseName, requiredLists); // delete display lists
     // System.err.println("GLText.cleanup: glDeleteTextures(" + textureName+ ");"); // DEBUG
@@ -145,22 +145,27 @@ public final class Font {
    * @return the base list name of the sequence of display lists created.
    */
   private int createDisplayLists() {
-    int requiredLists = font.lastCharacter - font.baseCharacter;
+    int baseCharacter = font.getBaseCharacter();
+    int lastCharacter = font.getLastCharacter();
+    int cellWidth = font.getCellWidth();
+    int cellHeight = font.getCellHeight();
+    byte[] characterWidths = font.getCharacterWidths();
+    int requiredLists = lastCharacter - baseCharacter;
     int baseList = GL11.glGenLists(requiredLists);
     if (baseList == 0) {
       throw new OpenGLException("OpenGL was unable to reserve the required " + requiredLists + " display lists!");
     } // if OpenGL failure
-    for (int list = baseList, index = font.baseCharacter, lastList = baseList + requiredLists; list < lastList; list++, index++) {
+    for (int list = baseList, index = baseCharacter, lastList = baseList + requiredLists; list < lastList; list++, index++) {
       Vector4f textureCoordinates = getTextureCoordinates(index); // retrieve texture coordinates
       // System.err.println("(list=" + list + ", lastindex=" + lastList + ") | index=" + index + " | " +" (x, y, z, w) = (" + textureCoordinates.x + ", " + textureCoordinates.y + ", " + textureCoordinates.z + ", " + textureCoordinates.w); // DEBUG
       GL11.glNewList(list, GL11.GL_COMPILE);
       GL11.glBegin(GL11.GL_QUADS);
       GL11.glTexCoord2f(textureCoordinates.x, textureCoordinates.w); GL11.glVertex2f(0, 0);
-      GL11.glTexCoord2f(textureCoordinates.z, textureCoordinates.w); GL11.glVertex2f(font.cellWidth, 0);
-      GL11.glTexCoord2f(textureCoordinates.z, textureCoordinates.y); GL11.glVertex2f(font.cellWidth, font.cellHeight);
-      GL11.glTexCoord2f(textureCoordinates.x, textureCoordinates.y); GL11.glVertex2f(0, font.cellHeight);
+      GL11.glTexCoord2f(textureCoordinates.z, textureCoordinates.w); GL11.glVertex2f(cellWidth, 0);
+      GL11.glTexCoord2f(textureCoordinates.z, textureCoordinates.y); GL11.glVertex2f(cellWidth, cellHeight);
+      GL11.glTexCoord2f(textureCoordinates.x, textureCoordinates.y); GL11.glVertex2f(0, cellHeight);
       GL11.glEnd();
-      GL11.glTranslatef(font.characterWidths[index], 0, 0); // advance to the right (characters left to right)
+      GL11.glTranslatef(characterWidths[index], 0, 0); // advance to the right (characters left to right)
       GL11.glEndList();
     } // for all lists
     return baseList;
@@ -170,16 +175,21 @@ public final class Font {
     GL11.glGenTextures(tmpIntBuffer);
     int name = tmpIntBuffer.get(0);
     GL11.glBindTexture(GL11.GL_TEXTURE_2D, name);
-    GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_PRIORITY, 1.0f);
+    GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_PRIORITY, 1.0f); // please don't trash this one
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
     GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+    if (GLContext.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+      GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, 2.0f);
+    } else {
+      // throw new UnsupportedOperationException("Anisotropic Texture Filtering is not available (OpenGL doesn't report the extension EXT_texture_filter_anisotropic)!");      
+    } // if anisotripic supported
     GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-    int error = GLU.gluBuild2DMipmaps(GL11.GL_TEXTURE_2D, font.glInternalFormat, font.width, font.height, font.glFormat, GL11.GL_UNSIGNED_BYTE, font.imageData);
+    int error = GLU.gluBuild2DMipmaps(GL11.GL_TEXTURE_2D, font.getGlInternalFormat(), font.getWidth(), font.getHeight(), font.getGlFormat(), GL11.GL_UNSIGNED_BYTE, font.getImageData());
     if (error != 0) {
       System.err.println("Warning: GLU.gluBuild2DMipmaps error " + error + " (resorting to texture without mipmap)!");
-      GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, font.glInternalFormat, font.width, font.height, 0, font.glFormat, GL11.GL_UNSIGNED_BYTE, font.imageData);
+      GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, font.getGlInternalFormat(), font.getWidth(), font.getHeight(), 0, font.getGlFormat(), GL11.GL_UNSIGNED_BYTE, font.getImageData());
     } // if
     return name;
   } // method
@@ -191,12 +201,16 @@ public final class Font {
    * @return a Vector4f with the texture coordinates
    */
   private Vector4f getTextureCoordinates(int character) {
-    int row = (character - font.baseCharacter) / font.charactersPerRow;
-    int col = (character - font.baseCharacter) - row * font.charactersPerRow;
-    tmpVector4f.x = col * font.columnFactor; // texture coordinate s1
-    tmpVector4f.y = row * font.rowFactor; // texture coordinate t1
-    tmpVector4f.z = tmpVector4f.x + font.columnFactor; // texture coordinate s2
-    tmpVector4f.w = tmpVector4f.y + font.rowFactor; // texture coordinate t2
+    int baseCharacter = font.getBaseCharacter();
+    int charactersPerRow = font.getCharactersPerRow();
+    int row = (character - baseCharacter) / charactersPerRow;
+    int col = (character - baseCharacter) - row * charactersPerRow;
+    float columnFactor = font.getColumnFactor();
+    float rowFactor = font.getRowFactor();
+    tmpVector4f.x = col * columnFactor; // texture coordinate s1
+    tmpVector4f.y = row * font.getRowFactor(); // texture coordinate t1
+    tmpVector4f.z = tmpVector4f.x + columnFactor; // texture coordinate s2
+    tmpVector4f.w = tmpVector4f.y + rowFactor; // texture coordinate t2
     // System.err.println(" (x, y, z, w) = (" + tmpVector4f.x + ", " + tmpVector4f.y + ", " + tmpVector4f.z + ", " + tmpVector4f.w + ")"); // DEBUG
     return tmpVector4f;
   } // method

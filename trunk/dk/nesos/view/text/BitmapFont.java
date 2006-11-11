@@ -3,26 +3,38 @@ package dk.nesos.view.text;
 import java.nio.*;
 
 /**
- * TODO: Consider changing to interface...
+ * TODO: description
  *
- * @author NDHB
- *
+ * @author ndhb
  */
-public abstract class BitmapFont {
+public interface BitmapFont {
     
-    int width;
-    int height;
-    byte bitsPerPixel;
-    int glFormat;
-    int glInternalFormat;
-    int cellWidth;
-    int cellHeight;
-    int baseCharacter;
-    int lastCharacter;
-    int charactersPerRow;
-    float rowFactor;
-    float columnFactor;
-    byte[] characterWidths;
-    ByteBuffer imageData;
+    int getBaseCharacter();
     
-} // class
+    byte getBitsPerPixel();
+    
+    int getCellHeight();
+    
+    int getCellWidth();
+    
+    int getCharactersPerRow();
+    
+    byte[] getCharacterWidths();
+    
+    float getColumnFactor();
+    
+    int getGlFormat();
+    
+    int getGlInternalFormat();
+    
+    int getHeight();
+    
+    ByteBuffer getImageData();
+    
+    int getLastCharacter();
+    
+    float getRowFactor();
+    
+    int getWidth();
+    
+} // interface

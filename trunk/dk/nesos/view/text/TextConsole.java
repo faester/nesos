@@ -9,7 +9,7 @@ import dk.nesos.view.camera.*;
 /**
  * TODO: description
  *
- * @author NDHB
+ * @author ndhb
  */
 public final class TextConsole {
 
@@ -33,6 +33,7 @@ public final class TextConsole {
   } // method
   
   public void renderGL() {
+    int lineHeight = font.getFont().getCellHeight();
     Camera.beginOrthographicProjection();
     GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT);
     GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -44,7 +45,7 @@ public final class TextConsole {
       GL11.glPushMatrix();
       text.renderGL(); 
       GL11.glPopMatrix();
-      GL11.glTranslatef(0, -font.getFont().cellHeight, 0); // translate offsets for next line
+      GL11.glTranslatef(0, -lineHeight, 0); // translate offsets for next line
     } // while
     GL11.glPopAttrib();
     Camera.endOrthographicProjection();
