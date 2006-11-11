@@ -398,7 +398,7 @@ public class TestText {
 
     // KEY_P
     if (Keyboard.isKeyDown(Keyboard.KEY_P)) {
-      textConsole.println("Hello console... " + Math.random());
+      textConsole.println("Hello console... " + doh++);
       try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
     } // if
     
@@ -482,7 +482,7 @@ public class TestText {
     } // if mouse
 
   } // method
-  
+  public static int doh = 0;
   private void render() {
     camera.refresh();
 
