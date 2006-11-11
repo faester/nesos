@@ -1,5 +1,7 @@
 package dk.nesos.view.text;
 
+import java.util.*;
+
 import org.lwjgl.opengl.*;
 
 import dk.nesos.view.camera.*;
@@ -10,8 +12,8 @@ import dk.nesos.view.camera.*;
  * @author ndhb
  */
 public final class TextConsole {
-
-	private BoundedBuffer<Text> entries; 
+	
+	private List<Text> entries;
 	private int positionX;
 	private int positionY;
 	private int lines;
@@ -22,7 +24,7 @@ public final class TextConsole {
 		this.positionX = positionX;
 		this.positionY = positionY;
 		this.lines = lines;
-		entries = new BoundedBuffer<Text>(lines);
+		entries = new ArrayList<Text>(lines);
 	} // constructor
 
 	public void initGL() {
@@ -36,7 +38,7 @@ public final class TextConsole {
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthMask(false);
 		GL11.glTranslatef(positionX, positionY, 0); // translate to position
-		for (int i = 0; i < entries.getSize(); i++) {
+		for (int i = 0; i < entries.size(); i++) {
 			GL11.glPushMatrix();
 			Text text = entries.get(i);
 			text.renderGL();
@@ -48,8 +50,8 @@ public final class TextConsole {
 	} // method  
 
 	public void cleanupGL() {
-		for (int i = 0; i < entries.getSize(); i++) {
-			Text text = (Text)entries.get(i);
+		for (int i = 0; i < entries.size(); i++) {
+			Text text = entries.get(i);
 			text.cleanupGL();
 		} // while
 	} // method
@@ -57,11 +59,17 @@ public final class TextConsole {
 	public void println(String string) {
 		Text text = new Text(font, string);
 		text.initGL();
+		if (entries.size() >= lines) {
+			Text removedText = entries.get(0);
+			removedText.cleanupGL();
+			entries.remove(0);
+		} // if
 		entries.add(text);
 	} // method
 
 	public void clear() {
-		entries = new BoundedBuffer<Text>(lines);    
+		cleanupGL();
+		entries = new ArrayList<Text>(lines);    
 	} // method
 
 	public int getPositionX() {

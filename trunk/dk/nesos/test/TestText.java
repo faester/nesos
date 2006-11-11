@@ -505,7 +505,7 @@ public class TestText {
 		camera.drawAxis();
 
 		// draw spheres
-		if (true) {
+		if (false) {
 			if (sphereList == 0) {
 				sphereList = GL11.glGenLists(1);
 				GL11.glNewList(sphereList, GL11.GL_COMPILE);
