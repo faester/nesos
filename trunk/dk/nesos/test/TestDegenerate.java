@@ -9,7 +9,6 @@ import org.lwjgl.util.vector.*;
 import java.nio.*;
 
 import dk.nesos.util.*;
-import dk.nesos.view.*;
 import dk.nesos.camera.*;
 import dk.nesos.font.*;
 

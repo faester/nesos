@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="../LWJGL/jar/lwjgl_devil.jar;../LWJGL/jar/lwjgl_util.jar;../LWJGL/jar/lwjgl.jar" destdir="javadoc" doctitle="Nesos" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="dk.nesos.model.weather,dk.nesos.camera,dk.nesos.model.water,dk.nesos.util,dk.nesos.font,dk.nesos.test" source="1.6" sourcepath="." splitindex="true" use="true" version="true">
+            <link href="file:/C:/Documents and Settings/ndhb/workspace/LWJGL/javadoc/"/>
+            <link href="file:/C:/Documents and Settings/ndhb/workspace/nesos/javadoc/"/>
+        </javadoc>
+    </target>
+</project>

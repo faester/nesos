@@ -41,9 +41,17 @@ public final class BitmapFileFont implements BitmapFont {
 	private int charactersPerRow;
 	private float rowFactor;
 	private float columnFactor;
+	private float lineHeight;
 	private byte[] characterWidths;
 	private ByteBuffer imageData;
 
+	/**
+	 * Load and parse the .bff file specified by the filename.
+	 * <P>
+	 * Path is relative to current directory. 
+	 * 
+	 * @param filename
+	 */
 	public BitmapFileFont(String filename) {
 		File file = new File(filename);
 		ByteBuffer buffer = BufferUtils.createByteBuffer((int)file.length());
@@ -61,6 +69,11 @@ public final class BitmapFileFont implements BitmapFont {
 		} // try
 	} // constructor
 
+	/**
+	 * Helper method.
+	 * 
+	 * @param buffer
+	 */
 	private void parse(ByteBuffer buffer) {
 		int version = buffer.getChar(BFF_VERSION_OFFSET);
 		if (version == BFF_VERSION2_FORMAT) {
@@ -75,6 +88,7 @@ public final class BitmapFileFont implements BitmapFont {
 			characterWidths = new byte[NUM_CHARACTER_WIDTH]; // initialize array of character widths
 			rowFactor = (float)cellHeight / (float)height;
 			columnFactor = (float)cellWidth / (float)width;
+			lineHeight = cellHeight;
 			buffer.position(CHARACTER_WIDTH_OFFSET);
 			buffer.get(characterWidths, 0, NUM_CHARACTER_WIDTH); // read into array of character widths
 			switch (bitsPerPixel) { // choose an appropriate OpenGL format
@@ -89,62 +103,111 @@ public final class BitmapFileFont implements BitmapFont {
 		} // if supported version
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getBaseCharacter()
+	 */
 	public int getBaseCharacter() {
 		return baseCharacter;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getBitsPerPixel()
+	 */
 	public byte getBitsPerPixel() {
 		return bitsPerPixel;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getCellHeight()
+	 */
 	public int getCellHeight() {
 		return cellHeight;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getCellWidth()
+	 */
 	public int getCellWidth() {
 		return cellWidth;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getCharactersPerRow()
+	 */
 	public int getCharactersPerRow() {
 		return charactersPerRow;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getCharacterWidths()
+	 */
 	public byte[] getCharacterWidths() {
 		return characterWidths;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getColumnFactor()
+	 */
 	public float getColumnFactor() {
 		return columnFactor;
 	} // method
 
-	public int getGlFormat() {
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getGLFormat()
+	 */
+	public int getGLFormat() {
 		return glFormat;
 	} // method
 
-	public int getGlInternalFormat() {
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getGLInternalFormat()
+	 */
+	public int getGLInternalFormat() {
 		return glInternalFormat;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getHeight()
+	 */
 	public int getHeight() {
 		return height;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getImageData()
+	 */
 	public ByteBuffer getImageData() {
 		return imageData;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getLastCharacter()
+	 */
 	public int getLastCharacter() {
 		return lastCharacter;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getRowFactor()
+	 */
 	public float getRowFactor() {
 		return rowFactor;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getWidth()
+	 */
 	public int getWidth() {
 		return width;
 	} // method
 
+	/* (non-Javadoc)
+	 * @see dk.nesos.font.BitmapFont#getLineHeight()
+	 */
+	public float getLineHeight() {
+		return lineHeight;
+	} // method
+	
 	@Override
 	public String toString() {
 		String LINE_SEPARATOR = System.getProperty("line.separator");
@@ -161,6 +224,7 @@ public final class BitmapFileFont implements BitmapFont {
 		s.append("charactersPerRow = " + charactersPerRow + LINE_SEPARATOR);
 		s.append("rowFactor = " + rowFactor + LINE_SEPARATOR);
 		s.append("columnFactor = " + columnFactor + LINE_SEPARATOR);
+		s.append("lineHeight = " + lineHeight + LINE_SEPARATOR);		
 		s.append("characterWidths = { ");
 		for (int i = 0; i < characterWidths.length; i++) {
 			s.append(characterWidths[i] + (i < characterWidths.length - 1 ? ", " : ""));
