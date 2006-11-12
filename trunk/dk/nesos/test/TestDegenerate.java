@@ -10,8 +10,8 @@ import java.nio.*;
 
 import dk.nesos.util.*;
 import dk.nesos.view.*;
-import dk.nesos.view.camera.*;
-import dk.nesos.view.text.*;
+import dk.nesos.camera.*;
+import dk.nesos.font.*;
 
 /**
  * <P>For testing <....>

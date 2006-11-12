@@ -1,4 +1,4 @@
-package dk.nesos.view;
+package dk.nesos.util;
 
 import org.lwjgl.opengl.*;
 

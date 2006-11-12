@@ -1,4 +1,4 @@
-package dk.nesos.view.camera;
+package dk.nesos.camera;
 
 /**
  * A Frustum is a plane defining the view volume.
