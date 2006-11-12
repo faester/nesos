@@ -8,7 +8,6 @@ import org.lwjgl.util.vector.*;
 
 import java.nio.*;
 
-// import dk.nesos.util.*;
 import dk.nesos.camera.*;
 
 /**
@@ -582,15 +581,15 @@ public class TestFont {
 		// camera = new Camera(new Vector3f(33, 55, 140), new Vector3f(0, 0, -1)); // front
 		camera = new Camera(new Vector3f(94.15569f, 27.0f, 112.69296f), new Vector3f(-0.51368123f, 0.0f, -0.84130013f));
 
-		BitmapFont verdana = new BitmapFileFont("asset/font/Verdana1024x1024x32x64x64x64.bff");
-		// BitmapFont lucida = new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8.bff");
+		// BitmapFont verdana = new BitmapFileFont("asset/font/Verdana1024x1024x32x64x64x64.bff");
+		BitmapFont lucida = new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8.bff");
 		// BitmapFont franklin = new BitmapFileFont("asset/font/FranklinGothicMedium512x512x32.bff");
 		// BitmapFont courier = new BitmapFileFont("asset/font/Courier512x512x32.bff");
 		// BitmapFont courier = new BitmapFileFont("asset/font/Courier256x256x8.bff");
 
 		BitmapFont lucidaConsole = new BitmapFileFont("asset/font/LucidaConsole256x256x8x12x12x11.bff");
 
-		normalFont = new Font(verdana);
+		normalFont = new Font(lucida);
 		smallFont = new Font(lucidaConsole);
 
 		textConsole = new TextConsole(smallFont, 0, Display.getDisplayMode().getHeight() - smallFont.getFont().getCellHeight(), 18);
