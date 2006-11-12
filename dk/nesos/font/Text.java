@@ -1,11 +1,11 @@
-package dk.nesos.view.text;
+package dk.nesos.font;
 
 import java.nio.*;
 
 import org.lwjgl.*;
 import org.lwjgl.opengl.*;
 
-import dk.nesos.view.camera.*;
+import dk.nesos.camera.*;
 
 /**
  * A text string that doesn't change and is displayed many times (a text label).

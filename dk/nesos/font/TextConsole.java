@@ -1,10 +1,10 @@
-package dk.nesos.view.text;
+package dk.nesos.font;
 
 import java.util.*;
 
 import org.lwjgl.opengl.*;
 
-import dk.nesos.view.camera.*;
+import dk.nesos.camera.*;
 
 /**
  * TODO: description

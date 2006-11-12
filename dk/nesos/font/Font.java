@@ -1,11 +1,11 @@
-package dk.nesos.view.text;
+package dk.nesos.font;
 
 import org.lwjgl.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.opengl.glu.*;
 import org.lwjgl.util.vector.*;
 
-import dk.nesos.view.camera.*;
+import dk.nesos.camera.*;
 
 import java.nio.*;
 

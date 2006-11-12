@@ -1,4 +1,4 @@
-package dk.nesos.view.text;
+package dk.nesos.font;
 
 import java.io.*;
 import java.nio.*;

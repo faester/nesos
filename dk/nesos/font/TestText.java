@@ -1,4 +1,4 @@
-package dk.nesos.test;
+package dk.nesos.font;
 
 import org.lwjgl.*;
 import org.lwjgl.opengl.*;
@@ -9,17 +9,14 @@ import org.lwjgl.util.vector.*;
 import java.nio.*;
 
 import dk.nesos.util.*;
-import dk.nesos.view.*;
-import dk.nesos.view.camera.*;
-import dk.nesos.view.text.*;
+//import dk.nesos.view.*;
+import dk.nesos.camera.*;
 
 /**
  * For testing the view.text.* classes
  * <P>
- * Take a look at the input method - there are many filtering and sampling options to try out. 
  * 
  * @author ndhb, mhf
- *
  */
 public class TestText {
 
@@ -254,9 +251,6 @@ public class TestText {
 		if (!key_f12 && Keyboard.isKeyDown(Keyboard.KEY_F12)) {
 			key_f12 = true;
 			// available
-			System.out.println("comp query");
-			TextureManager.isTextureCompressed2(normalFont.getTextureName());
-			TextureManager.listTextureCompressionFormats();
 		} else if (key_f12 && !Keyboard.isKeyDown(Keyboard.KEY_F12)) {
 			key_f12 = false;
 		} // if else
@@ -400,7 +394,7 @@ public class TestText {
 		// KEY_P
 		if (Keyboard.isKeyDown(Keyboard.KEY_P)) {
 			textConsole.println("Hello console... " + doh++);
-			try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
+			// try { Thread.sleep(100); } catch (InterruptedException e) { /* doh */ }
 		} // if
 
 		// KEY_C
@@ -497,7 +491,7 @@ public class TestText {
 			GL11.glRotatef(lightAngle, 0, 1, 0);
 			GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, lightPos); // set light position
 			GL11.glTranslatef(lightPos.get(0), lightPos.get(1), lightPos.get(2));
-			Color.glColor3f(Color.YELLOW);
+			GL11.glColor3f(1, 1, 0);
 			lightSphere.draw(2, 16, 16); // draw "sun" (note: expensive drawing!)
 			GL11.glPopMatrix(); // restore matrix
 		} // if rotating
@@ -665,8 +659,8 @@ public class TestText {
 			smallFont.cleanup();
 		if (text != null)
 			text.cleanupGL();
-		if (textConsole != null);
-		textConsole.cleanupGL();
+		if (textConsole != null)
+			textConsole.cleanupGL();
 		Mouse.destroy();
 		Keyboard.destroy();
 		Display.destroy();
