@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path=""/>
+	<classpathentry excluding="javadoc/" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Documents and Settings/ndhb/workspace/LWJGL/jar/lwjgl_util.jar">
 		<attributes>
-			<attribute value="file:/C:/Documents and Settings/ndhb/workspace/LWJGL/javadoc/" name="javadoc_location"/>
+			<attribute name="javadoc_location" value="file:/C:/Documents and Settings/ndhb/workspace/LWJGL/javadoc/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Documents and Settings/ndhb/workspace/LWJGL/jar/lwjgl.jar">
 		<attributes>
-			<attribute value="file:/C:/Documents and Settings/ndhb/workspace/LWJGL/javadoc/" name="javadoc_location"/>
+			<attribute name="javadoc_location" value="file:/C:/Documents and Settings/ndhb/workspace/LWJGL/javadoc/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Documents and Settings/ndhb/workspace/LWJGL/jar/lwjgl_devil.jar">
 		<attributes>
-			<attribute value="file:/C:/Documents and Settings/ndhb/workspace/LWJGL/javadoc/" name="javadoc_location"/>
+			<attribute name="javadoc_location" value="file:/C:/Documents and Settings/ndhb/workspace/LWJGL/javadoc/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path=""/>
