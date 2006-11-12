@@ -254,6 +254,7 @@ public class TestText {
 		if (!key_f12 && Keyboard.isKeyDown(Keyboard.KEY_F12)) {
 			key_f12 = true;
 			// available
+			System.out.println("comp query");
 			TextureManager.isTextureCompressed2(normalFont.getTextureName());
 			TextureManager.listTextureCompressionFormats();
 		} else if (key_f12 && !Keyboard.isKeyDown(Keyboard.KEY_F12)) {

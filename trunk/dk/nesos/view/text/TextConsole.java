@@ -57,13 +57,13 @@ public final class TextConsole {
 	} // method
 
 	public void println(String string) {
-		Text text = new Text(font, string);
-		text.initGL();
 		if (entries.size() >= lines) {
 			Text removedText = entries.get(0);
 			removedText.cleanupGL();
 			entries.remove(0);
-		} // if
+		} // if first entry due for removal
+		Text text = new Text(font, string);
+		text.initGL();
 		entries.add(text);
 	} // method
 

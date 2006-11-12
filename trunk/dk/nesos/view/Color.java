@@ -5,7 +5,7 @@ import org.lwjgl.opengl.*;
 /**
  * A number of <a href="http://www.pitt.edu/~nisg/cis/web/cgi/rgb.html">color codes</a>.
  * 
- * @author NDHB
+ * @author ndhb
  */
 public class Color {
 

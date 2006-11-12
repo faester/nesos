@@ -1,7 +1,5 @@
 package dk.nesos.view.camera;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import java.nio.*;
 
 import org.lwjgl.*;
@@ -13,6 +11,16 @@ import org.lwjgl.util.vector.*;
  * Simulates a simple camera in OpenGL.
  * <P>
  * <B>Note: Upwards is defined to be the Vector [0, 1, 0].</B>
+ * 
+ * Tutorial can be found at: http://www.lighthouse3d.com/opengl/viewfrustum/index.php?intro
+ * 
+ * OPTIMIZE:
+ * Look at surrounding view frustum with BoundingSphere (radius test for spheres) or AABB for quick initial test
+ * http://www.lighthouse3d.com/opengl/viewfrustum/index.php?remarks
+ * 
+ * OPTIMIZE:
+ * Look at the paper by Assarsson and Moller: http://www.ce.chalmers.se/~uffe/vfc_bbox.pdf
+ * http://www.lighthouse3d.com/opengl/viewfrustum/index.php?remarks2
  * 
  * @see org.lwjgl.opengl.glu.GLU#gluLookAt(float, float, float, float, float,
  *      float, float, float, float)
@@ -62,6 +70,11 @@ public final class Camera {
 	private Vector3f position;
 
 	/**
+	 * Has the Camera been updated since computeFrustum was last called?
+	 */
+	private boolean updated;
+	
+	/**
 	 * Display List name for drawing axis
 	 */
 	private int axisListName;
@@ -79,11 +92,11 @@ public final class Camera {
 	 * @param height of the projection screen
 	 */
 	public static void beginOrthographicProjection(int width, int height) {
-		glMatrixMode(GL_PROJECTION); // switch to projection stack
-		glPushMatrix(); // store projection matrix
-		glLoadIdentity(); // reset matrix
+		GL11.glMatrixMode(GL11.GL_PROJECTION); // switch to projection stack
+		GL11.glPushMatrix(); // store projection matrix
+		GL11.glLoadIdentity(); // reset matrix
 		GLU.gluOrtho2D(0, width, 0, height); // set a 2D orthographic projection
-		glMatrixMode(GL_MODELVIEW); // switch to projection stack
+		GL11.glMatrixMode(GL11.GL_MODELVIEW); // switch to projection stack
 		GL11.glPushMatrix(); // store current matrix
 		GL11.glLoadIdentity(); // need identity matrix for translation in orthographic perspective
 	} // method
@@ -92,10 +105,10 @@ public final class Camera {
 	 * Restores the previous projection from the stack.
 	 */
 	public static void endOrthographicProjection() {
-		glMatrixMode(GL_PROJECTION); // switch to projection stack
-		glPopMatrix(); // restore perspective matrix
-		glMatrixMode(GL_MODELVIEW); // switch to projection stack
-		glPopMatrix();
+		GL11.glMatrixMode(GL11.GL_PROJECTION); // switch to projection stack
+		GL11.glPopMatrix(); // restore perspective matrix
+		GL11.glMatrixMode(GL11.GL_MODELVIEW); // switch to projection stack
+		GL11.glPopMatrix();
 	} // method
 
 	/**
@@ -119,6 +132,7 @@ public final class Camera {
 		for (int f = 0; f < NUMBER_OF_FRUSTUMS; f++) {
 			frustums[f] = new Frustum();
 		} // for all frustums
+		updated = true;
 	} // constructor
 
 	/**
@@ -234,6 +248,7 @@ public final class Camera {
 	public void moveBackwards(float delta) {
 		position.x = position.x - (direction.x * delta);
 		position.z = position.z - (direction.z * delta);
+		updated = true;
 	} // method
 
 	/**
@@ -246,6 +261,7 @@ public final class Camera {
 	public void moveBackwardsLeft(float delta) {
 		position.x = position.x - (direction.x * delta) + (direction.z * delta);
 		position.z = position.z - (direction.z * delta) - (direction.x * delta);
+		updated = true;
 	} // method
 
 	/**
@@ -258,6 +274,7 @@ public final class Camera {
 	public void moveBackwardsRight(float delta) {
 		position.x = position.x - (direction.x * delta) - (direction.z * delta);
 		position.z = position.z - (direction.z * delta) + (direction.x * delta);
+		updated = true;
 	} // method
 
 	/**
@@ -268,6 +285,7 @@ public final class Camera {
 	 */
 	public void moveDown(float delta) {
 		position.y -= delta;
+		updated = true;
 	} // method
 
 	/**
@@ -282,6 +300,7 @@ public final class Camera {
 	public void moveForwards(float delta) {
 		position.x = position.x + (direction.x * delta);
 		position.z = position.z + (direction.z * delta);
+		updated = true;
 	} // method
 
 	/**
@@ -294,6 +313,7 @@ public final class Camera {
 	public void moveForwardsLeft(float delta) {
 		position.x = position.x + (direction.x * delta) + (direction.z * delta);
 		position.z = position.z + (direction.z * delta) - (direction.x * delta);
+		updated = true;
 	} // method
 
 	/**
@@ -306,6 +326,7 @@ public final class Camera {
 	public void moveForwardsRight(float delta) {
 		position.x = position.x + (direction.x * delta) - (direction.z * delta);
 		position.z = position.z + (direction.z * delta) + (direction.x * delta);
+		updated = true;
 	} // method
 
 	/**
@@ -317,6 +338,7 @@ public final class Camera {
 	public void moveLeft(float delta) {
 		position.x = position.x + (direction.z * delta);
 		position.z = position.z - (direction.x * delta);
+		updated = true;
 	} // method
 
 	/**
@@ -328,6 +350,7 @@ public final class Camera {
 	public void moveRight(float delta) {
 		position.x = position.x - (direction.z * delta);
 		position.z = position.z + (direction.x * delta);
+		updated = true;
 	} // method
 
 	/**
@@ -338,6 +361,7 @@ public final class Camera {
 	 */
 	public void moveUp(float delta) {
 		position.y += delta;
+		updated = true;
 	} // method
 
 	/**
@@ -351,7 +375,12 @@ public final class Camera {
 		GL11.glLoadIdentity();
 		// maybe do camera zoom here (with VIEWPORT_MATRIX)?
 		GLU.gluLookAt(position.x, position.y, position.z, position.x + direction.x, position.y + direction.y, position.z + direction.z, UP.x, UP.y, UP.z);
-		computeFrustums(); // recompute frustums now
+		if (updated) {
+			// flag to computeFrustum only if camera.position or camera.direction has changed
+			// DEBUG: System.err.println("Camera has been updated. Computing frustum planes...");
+			computeFrustums(); // recompute frustums now
+			updated = false;
+		} // if updated		
 	} // method
 
 	/**
@@ -379,6 +408,7 @@ public final class Camera {
 		rotationMatrix.m21 = t * axis.y * axis.z - sin * axis.x; // row 2, column 1
 		rotationMatrix.m22 = t * axis.z * axis.z + cos; // row 2, column 2
 		Matrix3f.transform(rotationMatrix, direction, direction); // changes direction vector
+		updated = true;
 	} // method
 
 	/**
@@ -402,6 +432,7 @@ public final class Camera {
 		float sin = (float)Math.sin(radians);
 		direction.y = (direction.y * cos) + (direction.z * -sin);
 		direction.z = (direction.y * sin) + (direction.z * cos);
+		updated = true;
 	} // method
 
 	/**
@@ -425,6 +456,7 @@ public final class Camera {
 		float sin = (float)Math.sin(radians);
 		direction.x = (direction.x * cos) + (direction.z * sin);
 		direction.z = (direction.x * -sin) + (direction.z * cos);
+		updated = true;
 	} // method
 
 	/**
@@ -450,6 +482,7 @@ public final class Camera {
 		float sin = (float)Math.sin(radians);
 		direction.x = (direction.x * cos) + (direction.y * -sin);
 		direction.y = (direction.x * sin) + (direction.y * cos);
+		updated = true;
 	} // method
 
 	/**
@@ -459,6 +492,7 @@ public final class Camera {
 	 */
 	public void setDirection(Vector3f direction) {
 		this.direction = direction;
+		updated = true;
 	} // method
 
 	/**
@@ -468,6 +502,7 @@ public final class Camera {
 	 */
 	public void setPosition(Vector3f position) {
 		this.position = position;
+		updated = true;
 	} // method
 
 	/**
@@ -495,9 +530,10 @@ public final class Camera {
 	 * OpenGL"
 	 */
 	private void computeFrustums() {
-		proj.clear();
-		modl.clear();
-		clip.clear();
+		// OPTIMIZE: not necessary to clear as all are overwritten!
+		// proj.clear();
+		// modl.clear();
+		// clip.clear();
 
 		GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, proj); // get the current projection matrix from OpenGL
 		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modl); // get the current modelview matrixfrom OpenGL

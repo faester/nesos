@@ -12,7 +12,7 @@ import org.lwjgl.opengl.*;
  * Codehead's Bitmap Font Generator (http://www.codehead.co.uk/cbfg)
  * (the fileformat specification is described in the help file)
  *
- * @author NDHB
+ * @author ndhb
  */
 public final class BitmapFileFont implements BitmapFont {
 
@@ -149,7 +149,6 @@ public final class BitmapFileFont implements BitmapFont {
 	public String toString() {
 		String LINE_SEPARATOR = System.getProperty("line.separator");
 		StringBuilder s = new StringBuilder();
-		s.append(super.toString() + LINE_SEPARATOR);
 		s.append("width = " + width + LINE_SEPARATOR);
 		s.append("height = " + height + LINE_SEPARATOR);
 		s.append("bitsPerPixel = " + bitsPerPixel + LINE_SEPARATOR);
