@@ -7,7 +7,9 @@ import org.lwjgl.opengl.*;
 import dk.nesos.camera.*;
 
 /**
- * TODO: description
+ * Renders lines of text similar to a console window.
+ * <P>
+ * By removing the oldest lines, once the specified number of lines has been added, it appears that the console is scrolling the text upwards. 
  *
  * @author ndhb
  */
@@ -19,6 +21,14 @@ public final class TextConsole {
 	private int lines;
 	private Font font;
 
+	/**
+	 * Constructs a new console in 2D.
+	 * 
+	 * @param font used to render the text.
+	 * @param positionX horisontal position on the screen.
+	 * @param positionY vertical position on the screen.
+	 * @param lines number of lines before scrolling upwards.
+	 */
 	public TextConsole(Font font, int positionX, int positionY, int lines) {
 		this.font = font;
 		this.positionX = positionX;
@@ -27,12 +37,18 @@ public final class TextConsole {
 		entries = new ArrayList<Text>(lines);
 	} // constructor
 
+	/**
+	 * Prepares the rendering by initializing OpenGL states.
+	 */
 	public void initGL() {
 		// empty
 	} // method
 
+	/**
+	 * Performs the rendering in OpenGL.
+	 */
 	public void renderGL() {
-		int lineHeight = font.getFont().getCellHeight();
+		float lineHeight = font.getFont().getLineHeight();
 		Camera.beginOrthographicProjection();
 		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -49,6 +65,9 @@ public final class TextConsole {
 		Camera.endOrthographicProjection();
 	} // method  
 
+	/**
+	 * Cleanup allocated OpenGL resources.
+	 */
 	public void cleanupGL() {
 		for (int i = 0; i < entries.size(); i++) {
 			Text text = entries.get(i);
@@ -56,6 +75,11 @@ public final class TextConsole {
 		} // while
 	} // method
 
+	/**
+	 * Adds a new text line to the console.
+	 * 
+	 * @param string
+	 */
 	public void println(String string) {
 		if (entries.size() >= lines) {
 			Text removedText = entries.get(0);
@@ -67,6 +91,9 @@ public final class TextConsole {
 		entries.add(text);
 	} // method
 
+	/**
+	 * Clears the console of all text lines.
+	 */
 	public void clear() {
 		cleanupGL();
 		entries = new ArrayList<Text>(lines);    

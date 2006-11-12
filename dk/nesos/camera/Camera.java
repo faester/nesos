@@ -12,8 +12,6 @@ import org.lwjgl.util.vector.*;
  * <P>
  * <B>Note: Upwards is defined to be the Vector [0, 1, 0].</B>
  * 
- * Tutorial can be found at: http://www.lighthouse3d.com/opengl/viewfrustum/index.php?intro
- * 
  * OPTIMIZE:
  * Look at surrounding view frustum with BoundingSphere (radius test for spheres) or AABB for quick initial test
  * http://www.lighthouse3d.com/opengl/viewfrustum/index.php?remarks
@@ -79,6 +77,9 @@ public final class Camera {
 	 */
 	private int axisListName;
 
+	/**
+	 * Prepares an orthographic projection matrix the size of current display mode.
+	 */
 	public static void beginOrthographicProjection() {
 		beginOrthographicProjection(Display.getDisplayMode().getWidth(), Display.getDisplayMode().getHeight());
 	} // method
@@ -375,8 +376,7 @@ public final class Camera {
 		GL11.glLoadIdentity();
 		// maybe do camera zoom here (with VIEWPORT_MATRIX)?
 		GLU.gluLookAt(position.x, position.y, position.z, position.x + direction.x, position.y + direction.y, position.z + direction.z, UP.x, UP.y, UP.z);
-		if (updated) {
-			// flag to computeFrustum only if camera.position or camera.direction has changed
+		if (updated) { // recompute only if position or direction has changed
 			// DEBUG: System.err.println("Camera has been updated. Computing frustum planes...");
 			computeFrustums(); // recompute frustums now
 			updated = false;
@@ -530,11 +530,6 @@ public final class Camera {
 	 * OpenGL"
 	 */
 	private void computeFrustums() {
-		// OPTIMIZE: not necessary to clear as all are overwritten!
-		// proj.clear();
-		// modl.clear();
-		// clip.clear();
-
 		GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, proj); // get the current projection matrix from OpenGL
 		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modl); // get the current modelview matrixfrom OpenGL
 

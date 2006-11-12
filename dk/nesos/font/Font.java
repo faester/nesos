@@ -10,13 +10,13 @@ import dk.nesos.camera.*;
 import java.nio.*;
 
 /**
- * Font is an object that creates text with the font specified in the constructor.
+ * Font is an object that creates text with the BitmapFont specified in the constructor.
  *  
  * @author ndhb
  */
 public final class Font {
 
-	private static final int MAX_STRING_LENGTH = 256; // maximum number of characters in a string
+	private static final int MAX_STRING_LENGTH = 128; // maximum number of characters in a string
 
 	private int characterIndex; // start of character indici
 	private int listBaseName; // name of first valid display list
@@ -32,10 +32,16 @@ public final class Font {
 		characterIndex = listBaseName - font.getBaseCharacter();
 	} // constructor
 
+	/**
+	 * @return first character index in the font
+	 */
 	public int getCharacterIndex() {
 		return characterIndex;
 	} // method
 
+	/**
+	 * @return the BitmapFont object associated with this font
+	 */
 	public BitmapFont getFont() {
 		return font;
 	} // method
@@ -45,9 +51,9 @@ public final class Font {
 	 */
 	public void cleanup() {
 		int requiredLists = font.getLastCharacter() - font.getBaseCharacter();
-		// System.err.println("GLText.cleanup: glDeleteLists(" + listBaseName + ", " + requiredLists + ");"); // DEBUG
+		// System.err.println("Font.cleanup: glDeleteLists(" + listBaseName + ", " + requiredLists + ");"); // DEBUG
 		GL11.glDeleteLists(listBaseName, requiredLists); // delete display lists
-		// System.err.println("GLText.cleanup: glDeleteTextures(" + textureName+ ");"); // DEBUG
+		// System.err.println("Font.cleanup: glDeleteTextures(" + textureName+ ");"); // DEBUG
 		tmpIntBuffer.put(0, textureName); // prepare delete texture
 		GL11.glDeleteTextures(tmpIntBuffer); // delete texture
 	} // method
@@ -82,18 +88,20 @@ public final class Font {
 	 * to scale, rotate and translate the text.
 	 *
 	 * @param string
-	 * @param x
-	 * @param y
-	 * @param z
 	 */
 	public void drawText3D(String string) {    
 		drawText(string); // perform the actual rendering
 	} // method
 
+	/**
+	 * Helper method used by drawText2D and drawText3D.
+	 * 
+	 * @param string
+	 */
 	private void drawText(String string) {
 		int stringLength = string.length();
 		if (stringLength > MAX_STRING_LENGTH) {
-			throw new UnsupportedOperationException("String too long (" + stringLength + " characters in string, but only " + MAX_STRING_LENGTH + " available). Please shorten string OR increase GLText.MAX_STRING_LENGTH)!");
+			throw new UnsupportedOperationException("String too long (" + stringLength + " characters in string, but only " + MAX_STRING_LENGTH + " available). Please shorten string OR increase Font.MAX_STRING_LENGTH)!");
 		} // if string too long
 		tmpIntBuffer.limit(stringLength);
 		for (int c = 0; c < stringLength; c++) {
@@ -105,12 +113,14 @@ public final class Font {
 	} // method
 
 	/**
-	 * Draws the font as one textured quad on the x-axis of the current coordinate system. This makes examining the font easier.
+	 * Draws the font as one textured quad on the x-axis of the current coordinate system.
+	 * <P>
+	 * This makes examining the font easier.
 	 *
 	 * @param width of the quad being drawn
 	 * @param height of the quad being drawn
 	 */
-	public void drawTexture(int width, int height) {
+	public void renderGL(int width, int height) {
 		beginText();
 		GL11.glBegin(GL11.GL_QUADS);
 		GL11.glNormal3f(0, 0, 1);
@@ -150,7 +160,7 @@ public final class Font {
 			throw new OpenGLException("OpenGL was unable to reserve the required " + requiredLists + " display lists!");
 		} // if OpenGL failure
 		for (int list = baseList, index = baseCharacter, lastList = baseList + requiredLists; list < lastList; list++, index++) {
-			Vector4f textureCoordinates = getTextureCoordinates(index); // retrieve texture coordinates
+			Vector4f textureCoordinates = getTextureCoordinates(index); // texture coordinates for this character
 			// System.err.println("(list=" + list + ", lastindex=" + lastList + ") | index=" + index + " | " +" (x, y, z, w) = (" + textureCoordinates.x + ", " + textureCoordinates.y + ", " + textureCoordinates.z + ", " + textureCoordinates.w); // DEBUG
 			GL11.glNewList(list, GL11.GL_COMPILE);
 			GL11.glBegin(GL11.GL_QUADS);
@@ -165,6 +175,13 @@ public final class Font {
 		return baseList;
 	} // method
 
+	/**
+	 * Creates the texture used by this font.
+	 * <P>
+	 * The texture is mipmapped and anisotropic filtering enabled if possible (value is 2).
+	 * 
+	 * @return the name of the texture created.
+	 */
 	private int createFontTexture() {
 		GL11.glGenTextures(tmpIntBuffer);
 		int name = tmpIntBuffer.get(0);
@@ -180,10 +197,10 @@ public final class Font {
 			// throw new UnsupportedOperationException("Anisotropic Texture Filtering is not available (OpenGL doesn't report the extension EXT_texture_filter_anisotropic)!");      
 		} // if anisotripic supported
 		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-		int error = GLU.gluBuild2DMipmaps(GL11.GL_TEXTURE_2D, font.getGlInternalFormat(), font.getWidth(), font.getHeight(), font.getGlFormat(), GL11.GL_UNSIGNED_BYTE, font.getImageData());
+		int error = GLU.gluBuild2DMipmaps(GL11.GL_TEXTURE_2D, font.getGLInternalFormat(), font.getWidth(), font.getHeight(), font.getGLFormat(), GL11.GL_UNSIGNED_BYTE, font.getImageData());
 		if (error != 0) {
 			System.err.println("Warning: GLU.gluBuild2DMipmaps error " + error + " (resorting to texture without mipmap)!");
-			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, font.getGlInternalFormat(), font.getWidth(), font.getHeight(), 0, font.getGlFormat(), GL11.GL_UNSIGNED_BYTE, font.getImageData());
+			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, font.getGLInternalFormat(), font.getWidth(), font.getHeight(), 0, font.getGLFormat(), GL11.GL_UNSIGNED_BYTE, font.getImageData());
 		} // if
 		return name;
 	} // method
@@ -210,9 +227,9 @@ public final class Font {
 	} // method
 
 	/**
-	 * Should be called prior to rendering the characters in the text.
+	 * The method saves current OpenGL states and enables those required for rendering.
 	 * <P>
-	 * The method saves current OpenGL states and enables those required for rendering. 
+	 * Note: Should be called prior to rendering the characters in the text.
 	 */
 	public void beginText() {
 		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_TRANSFORM_BIT); // store changed attributes
@@ -226,7 +243,9 @@ public final class Font {
 	} // method
 
 	/**
-	 * Should be called when done rendering all characters in the text. The method restores previously saved OpenGL states.
+	 * The method restores previously saved OpenGL states.
+	 * <P>
+	 * Note: Should be called when done rendering all characters in the text.
 	 */
 	public void endText() {
 		GL11.glPopAttrib(); // restore attributes
