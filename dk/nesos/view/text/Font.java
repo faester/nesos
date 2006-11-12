@@ -1,7 +1,5 @@
 package dk.nesos.view.text;
 
-//import static org.lwjgl.opengl.GL11.*;
-
 import org.lwjgl.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.opengl.glu.*;
@@ -13,12 +11,8 @@ import java.nio.*;
 
 /**
  * Font is an object that creates text with the font specified in the constructor.
- * <P>
- * Note: http://www.gamedev.net/community/forums/topic.asp?topic_id=421835
- * <P>
- * </OL>
- * 
- * @author NDHB
+ *  
+ * @author ndhb
  */
 public final class Font {
 
