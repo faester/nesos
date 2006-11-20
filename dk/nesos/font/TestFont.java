@@ -41,10 +41,10 @@ public class TestFont {
 	private boolean key_return = false;
 	private boolean glShadeModel = true;
 	private boolean glFillPolygon = true;
-	private boolean glLighting = false;
+	private boolean glLighting = true;
 	private boolean glCullFace = false;
-	private boolean displayAntiAlias = false;
-	private boolean displaySync = false;
+	private boolean displayAntiAlias = true;
+	private boolean displaySync = true;
 	private boolean done = false;
 	private String windowTitle = "TestFont";
 	private DisplayMode displayMode;
@@ -455,7 +455,7 @@ public class TestFont {
 		} // if rotating
 
 		// draw spheres
-		if (false) {
+		if (true) {
 			if (sphereList == 0) {
 				sphereList = GL11.glGenLists(1);
 				GL11.glNewList(sphereList, GL11.GL_COMPILE);
@@ -477,13 +477,13 @@ public class TestFont {
 			} // if                        
 		} // if sphere
 
-		if (true) {
+		if (false) {
 			GL11.glColor3f(1, 1, 1);
 			normalFont.renderGL(100, 100);
 		} // if textures
 
 		if (true) {
-			GL11.glColor3f(0.35f, 0.35f, 0.7f);
+			GL11.glColor4f(0.35f, 0.35f, 0.7f, 0.5f);
 			// GL11.glColor3f(0f, 0f, 0f);
 			// GL11.glColor3f(1f, 1f, 1f);      
 			GL11.glPushMatrix(); // store matrix
@@ -496,10 +496,37 @@ public class TestFont {
 		} // if
 
 		if (true) {
+			GL11.glColor4f(0.2f, 1f, 0.2f, 0.35f);
+			GL11.glPushMatrix();
+			GL11.glTranslatef(10, 10, 10);
+			GL11.glScalef(0.2f, 0.2f, 0.2f);
+			normalFont.drawText3D("glScale(0.2f, 0.2f, 0.2f);");
+			GL11.glPopMatrix();
+		} // if
+		
+		if (true) {
+			GL11.glPushMatrix();
+			GL11.glColor4f(1.0f, 0.85f, 0.1f, 0.85f);
+			GL11.glScalef(0.05f, 0.05f, 0.05f);
+			
+			GL11.glRotatef(45, 0, 0, 1);
+			normalFont.drawText3D("glRotate(45, 0, 0, 1); glScalef(0.05f, 0.05f, 0.05f);");
+			GL11.glPopMatrix();
+			
+			GL11.glPushMatrix();
+			GL11.glColor4f(1.0f, 0.65f, 0.1f, 0.85f);			
+			GL11.glScalef(0.05f, 0.05f, 0.05f);			
+			GL11.glTranslatef(0, 0, 20);
+			GL11.glRotatef(-textRotationAngle * 5, 0, 0, 1);
+			normalFont.drawText3D("Rotating fool");
+			GL11.glPopMatrix();
+		} // if
+		
+		if (true) {
 			GL11.glColor4f(1f, 1f, 1f, 0.75f);
 			textConsole.renderGL();
 		} // if
-
+	
 		currentTime = System.currentTimeMillis();
 		if (currentTime > timeToFPS) {
 			currentFPS = framesRendered / FPS_UPDATE_TIME * 1000;
@@ -510,7 +537,7 @@ public class TestFont {
 		} else {
 			framesRendered++;
 		} // if time to update fps
-		GL11.glColor4f(1f, 1f, 1f, 0.25f);
+		GL11.glColor4f(1f, 1f, 1f, 0.75f);
 		smallFont.drawText2D("FPS: " + currentFPS + " (MIN: " + (int)minFPS + ", MAX: " + (int)maxFPS + ")", 0, 0);
 	} // method
 
@@ -562,7 +589,7 @@ public class TestFont {
 		// set perspective rendering
 		GL11.glMatrixMode(GL11.GL_PROJECTION); // select the projection matrix
 		GL11.glLoadIdentity(); // reset matrix
-		GLU.gluPerspective(45, (float)displayMode.getWidth() / (float)displayMode.getHeight(), 0.1f, 2000f);
+		GLU.gluPerspective(60, (float)displayMode.getWidth() / (float)displayMode.getHeight(), 0.1f, 2000f);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW); // select the modelview matrix
 
 		// create light components       
@@ -578,7 +605,8 @@ public class TestFont {
 		GL11.glMateriali(GL11.GL_FRONT, GL11.GL_SHININESS, 64);
 
 		// camera = new Camera(new Vector3f(33, 55, 140), new Vector3f(0, 0, -1)); // front
-		camera = new Camera(new Vector3f(94.15569f, 27.0f, 112.69296f), new Vector3f(-0.51368123f, 0.0f, -0.84130013f));
+		// camera = new Camera(new Vector3f(94.15569f, 27.0f, 112.69296f), new Vector3f(-0.51368123f, 0.0f, -0.84130013f));
+		camera = new Camera(new Vector3f(41.718647f, 16.0f, 19.474285f), new Vector3f(-0.79879487f, -4.1021733E-5f, -0.54275835f));
 
 		BitmapFont verdana = new BitmapFileFont("asset/font/Verdana1024x1024x32x64x64x64.bff");
 		// BitmapFont lucida = new BitmapFileFont("asset/font/LucidaSansUnicode512x512x8.bff");
