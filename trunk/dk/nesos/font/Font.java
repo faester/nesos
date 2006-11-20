@@ -89,7 +89,7 @@ public final class Font {
 	 *
 	 * @param string
 	 */
-	public void drawText3D(String string) {    
+	public void drawText3D(String string) {
 		drawText(string); // perform the actual rendering
 	} // method
 
@@ -232,9 +232,11 @@ public final class Font {
 	 * Note: Should be called prior to rendering the characters in the text.
 	 */
 	public void beginText() {
-		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_TRANSFORM_BIT); // store changed attributes
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // blending
-		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f); // those pixels with alpha greater than 0.1
+		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS); // DEBUG: 
+		// GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_TRANSFORM_BIT); // store changed attributes
+		// GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // blending
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_DST_ALPHA); // blending
+		GL11.glAlphaFunc(GL11.GL_GREATER, 0.01f); // those pixels with alpha greater than 0.1
 		GL11.glDisable(GL11.GL_LIGHTING); // turn off lighting while drawing text
 		GL11.glEnable(GL11.GL_BLEND); // enable blending
 		GL11.glEnable(GL11.GL_ALPHA_TEST); // filter on alpha func
